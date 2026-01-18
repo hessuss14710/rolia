@@ -48,7 +48,6 @@ export default function Game() {
       setRoom(roomData.room);
       setCharacter(charData.character);
 
-      // Convert history to messages
       const msgs = historyData.history.map(h => ({
         id: h.id,
         type: h.speaker === 'ia' ? 'ai' : 'user',
@@ -60,7 +59,6 @@ export default function Game() {
       }));
       setMessages(msgs);
 
-      // Setup socket
       socketService.connect();
       socketService.joinRoom(code);
 
@@ -95,7 +93,7 @@ export default function Game() {
   }
 
   function handleChatMessage(data) {
-    if (data.userId === user.id) return; // Skip own messages
+    if (data.userId === user.id) return;
     setMessages(prev => [...prev, {
       id: Date.now(),
       type: 'user',
@@ -117,7 +115,6 @@ export default function Game() {
       timestamp: data.timestamp
     }]);
 
-    // Handle character updates from AI
     if (data.characterUpdate && character) {
       if (data.characterUpdate.hpChange) {
         const newHp = Math.max(0, Math.min(character.max_hp, character.hp + data.characterUpdate.hpChange));
@@ -165,7 +162,7 @@ export default function Game() {
 
   function handleCharacterUpdated(data) {
     if (data.characterId === character?.id) {
-      loadGame(); // Reload character
+      loadGame();
     }
   }
 
@@ -183,7 +180,6 @@ export default function Game() {
   }
 
   async function handleVoiceResult(data) {
-    // Add user's transcribed message
     setMessages(prev => [...prev, {
       id: Date.now(),
       type: 'user',
@@ -193,7 +189,6 @@ export default function Game() {
       timestamp: new Date().toISOString()
     }]);
 
-    // Add AI response
     setMessages(prev => [...prev, {
       id: Date.now() + 1,
       type: 'ai',
@@ -204,12 +199,10 @@ export default function Game() {
       timestamp: new Date().toISOString()
     }]);
 
-    // Play audio response
     if (data.audioBase64) {
       playAudio(data.audioBase64);
     }
 
-    // Handle character updates
     if (data.characterUpdate && character) {
       if (data.characterUpdate.hpChange) {
         const newHp = Math.max(0, Math.min(character.max_hp, character.hp + data.characterUpdate.hpChange));
@@ -227,7 +220,6 @@ export default function Game() {
     setTextInput('');
     setProcessing(true);
 
-    // Add message immediately
     setMessages(prev => [...prev, {
       id: Date.now(),
       type: 'user',
@@ -240,7 +232,6 @@ export default function Game() {
     try {
       const response = await api.sendMessage(code, message);
 
-      // Add AI response
       setMessages(prev => [...prev, {
         id: Date.now(),
         type: 'ai',
@@ -288,26 +279,37 @@ export default function Game() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="spinner"></div>
+      <div className="h-screen flex items-center justify-center">
+        <div className="bg-animation" />
+        <div className="stars" />
+        <div className="grid-overlay" />
+        <div className="spinner-large" />
       </div>
     );
   }
 
+  const hpPercentage = character ? (character.hp / character.max_hp) * 100 : 100;
+
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-b from-gray-900 to-black">
+    <div className="h-screen flex flex-col relative">
+      {/* Animated backgrounds */}
+      <div className="bg-animation" />
+      <div className="stars" />
+      <div className="grid-overlay" />
+
       {/* Header */}
-      <header className="glass px-4 py-2 flex items-center gap-3 shrink-0">
+      <header className="glass-strong px-4 py-3 flex items-center gap-3 shrink-0 relative z-20">
         <button
           onClick={() => navigate(`/rol/room/${code}`)}
-          className="p-2 hover:bg-white/10 rounded-lg"
+          className="p-2 hover:bg-white/10 rounded-xl transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="font-semibold truncate text-sm">{room?.name}</h1>
+          <h1 className="font-display font-bold text-sm truncate">{room?.name}</h1>
+          <div className="text-xs text-gray-500">En partida</div>
         </div>
 
         {/* Online users */}
@@ -315,8 +317,8 @@ export default function Game() {
           {roomUsers.slice(0, 4).map((u) => (
             <div
               key={u.odId}
-              className={`w-8 h-8 rounded-full bg-rolia-600 flex items-center justify-center text-xs font-bold border-2 border-gray-900 ${
-                speakingUsers.has(u.odId) ? 'ring-2 ring-green-400 speaking-indicator' : ''
+              className={`w-9 h-9 rounded-xl bg-gradient-to-br from-neon-purple to-neon-pink flex items-center justify-center text-xs font-bold border-2 border-dark-bg transition-all ${
+                speakingUsers.has(u.odId) ? 'ring-2 ring-neon-green speaking-indicator scale-110' : ''
               }`}
               title={u.username}
             >
@@ -324,7 +326,7 @@ export default function Game() {
             </div>
           ))}
           {roomUsers.length > 4 && (
-            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs border-2 border-gray-900">
+            <div className="w-9 h-9 rounded-xl bg-gray-700 flex items-center justify-center text-xs border-2 border-dark-bg">
               +{roomUsers.length - 4}
             </div>
           )}
@@ -334,18 +336,32 @@ export default function Game() {
         {character && (
           <button
             onClick={() => setShowCharacter(true)}
-            className="p-2 hover:bg-white/10 rounded-lg relative"
+            className="relative p-2 hover:bg-white/10 rounded-xl transition-colors group"
           >
-            <span className="text-lg">🧙</span>
-            <div className="absolute -bottom-1 -right-1 text-xs bg-red-600 rounded-full px-1">
+            <span className="text-2xl group-hover:scale-110 transition-transform inline-block">🧙</span>
+            <div className="absolute -bottom-1 -right-1 px-1.5 py-0.5 text-xs font-bold rounded-md bg-gradient-to-r from-neon-green to-emerald-400 text-black">
               {character.hp}
+            </div>
+            {/* Mini HP bar */}
+            <div className="absolute bottom-0 left-1 right-1 h-1 bg-white/20 rounded-full overflow-hidden">
+              <div
+                className={`h-full transition-all ${hpPercentage > 50 ? 'bg-neon-green' : hpPercentage > 25 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                style={{ width: `${hpPercentage}%` }}
+              />
             </div>
           </button>
         )}
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10">
+        {messages.length === 0 && (
+          <div className="text-center py-12 animate-fade-in">
+            <div className="text-6xl mb-4">🎭</div>
+            <p className="text-gray-400 text-lg">La aventura esta a punto de comenzar...</p>
+            <p className="text-gray-600 text-sm mt-2">Usa el microfono o escribe para hablar con el narrador</p>
+          </div>
+        )}
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} isOwn={msg.speaker === `user:${user.id}`} />
         ))}
@@ -353,12 +369,12 @@ export default function Game() {
       </div>
 
       {/* Input Area */}
-      <div className="glass p-4 shrink-0">
+      <div className="glass-strong p-4 shrink-0 relative z-20">
         <div className="flex items-center gap-3 max-w-2xl mx-auto">
           {/* Dice button */}
           <button
             onClick={() => setShowDice(true)}
-            className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-2xl shrink-0"
+            className="w-14 h-14 rounded-2xl bg-gradient-to-br from-neon-purple/20 to-neon-pink/20 border border-neon-purple/30 hover:border-neon-purple hover:shadow-lg hover:shadow-neon-purple/20 flex items-center justify-center text-2xl shrink-0 transition-all hover:scale-105"
           >
             🎲
           </button>
@@ -370,13 +386,13 @@ export default function Game() {
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
               placeholder="Escribe tu accion..."
-              className="flex-1 bg-white/10 border border-white/20 rounded-full px-4 py-2 text-white placeholder-gray-500"
+              className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white placeholder-gray-500 focus:border-neon-purple focus:outline-none focus:shadow-lg focus:shadow-neon-purple/10 transition-all"
               disabled={processing}
             />
             <button
               type="submit"
               disabled={!textInput.trim() || processing}
-              className="w-10 h-10 rounded-full bg-rolia-600 hover:bg-rolia-500 disabled:bg-gray-700 flex items-center justify-center"
+              className="w-12 h-12 rounded-2xl bg-gradient-to-r from-neon-purple to-neon-pink hover:shadow-lg hover:shadow-neon-purple/30 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-all hover:scale-105 disabled:hover:scale-100"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -420,32 +436,34 @@ export default function Game() {
 function MessageBubble({ message, isOwn }) {
   if (message.type === 'system') {
     return (
-      <div className="text-center text-gray-500 text-sm py-1">
-        {message.text}
+      <div className="text-center py-2 animate-fade-in">
+        <span className="text-gray-500 text-sm bg-white/5 px-4 py-1 rounded-full">
+          {message.text}
+        </span>
       </div>
     );
   }
 
   if (message.type === 'dice') {
     return (
-      <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-        <div className="glass rounded-xl p-3 max-w-xs">
-          <div className="text-xs text-gray-400 mb-1">{message.speakerName}</div>
-          <div className="text-sm text-gray-300 mb-2">{message.text}</div>
+      <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} message-enter`}>
+        <div className="glass rounded-2xl p-4 max-w-xs">
+          <div className="text-xs text-gray-400 mb-2 font-medium">{message.speakerName}</div>
+          <div className="text-sm text-gray-300 mb-3">{message.text}</div>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-lg">🎲</span>
+            <span className="text-2xl">🎲</span>
             {message.diceRoll?.results?.map((r, i) => (
-              <span key={i} className="bg-rolia-600 rounded px-2 py-1 font-mono font-bold">
+              <span key={i} className="bg-gradient-to-r from-neon-purple to-neon-pink rounded-lg px-3 py-1 font-display font-bold text-lg dice-result">
                 {r}
               </span>
             ))}
             {message.diceRoll?.modifier !== 0 && (
-              <span className="text-gray-400">
+              <span className="text-gray-400 font-medium">
                 {message.diceRoll.modifier > 0 ? '+' : ''}{message.diceRoll.modifier}
               </span>
             )}
-            <span className="text-xl font-bold text-rolia-400">=</span>
-            <span className="text-2xl font-bold">{message.diceRoll?.total}</span>
+            <span className="text-2xl font-bold text-neon-purple">=</span>
+            <span className="text-3xl font-display font-black text-white">{message.diceRoll?.total}</span>
           </div>
         </div>
       </div>
@@ -455,35 +473,36 @@ function MessageBubble({ message, isOwn }) {
   const isAI = message.type === 'ai';
 
   return (
-    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} message-enter`}>
+    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} ${isOwn ? 'slide-in-right' : 'slide-in-left'}`}>
       <div
-        className={`rounded-2xl p-3 max-w-[85%] ${
+        className={`rounded-2xl p-4 max-w-[85%] ${
           isAI
-            ? 'bg-gradient-to-br from-rolia-900/80 to-rolia-800/60 border border-rolia-500/30'
+            ? 'ai-message rounded-tl-sm'
             : isOwn
-            ? 'bg-rolia-600'
-            : 'glass'
+            ? 'bg-gradient-to-r from-neon-purple to-neon-pink rounded-tr-sm'
+            : 'glass rounded-tl-sm'
         }`}
       >
         {!isOwn && !isAI && (
-          <div className="text-xs text-gray-400 mb-1">{message.speakerName}</div>
+          <div className="text-xs text-gray-400 mb-2 font-medium">{message.speakerName}</div>
         )}
         {isAI && (
-          <div className="text-xs text-rolia-400 mb-1 flex items-center gap-1">
-            <span>🎭</span> Narrador
+          <div className="text-xs text-neon-purple mb-2 flex items-center gap-2 font-display font-bold tracking-wide">
+            <span className="text-lg">🎭</span> NARRADOR
           </div>
         )}
-        <div className="text-sm whitespace-pre-wrap">{message.text}</div>
+        <div className="text-sm whitespace-pre-wrap leading-relaxed">{message.text}</div>
         {message.diceRoll?.suggested && (
-          <div className="mt-2 bg-black/30 rounded-lg p-2 text-xs">
+          <div className="mt-3 bg-black/30 rounded-xl p-3 text-xs border border-neon-purple/30">
             <span className="text-gray-400">Tirada sugerida:</span>{' '}
-            <span className="text-rolia-400 font-mono">{message.diceRoll.suggested}</span>
+            <span className="text-neon-cyan font-display font-bold">{message.diceRoll.suggested}</span>
             {message.diceRoll.modifier !== 0 && (
               <span className="text-gray-400">
                 {message.diceRoll.modifier > 0 ? '+' : ''}{message.diceRoll.modifier}
               </span>
             )}
-            <span className="text-gray-400"> vs DC {message.diceRoll.dc}</span>
+            <span className="text-gray-400"> vs DC </span>
+            <span className="text-neon-pink font-bold">{message.diceRoll.dc}</span>
           </div>
         )}
       </div>

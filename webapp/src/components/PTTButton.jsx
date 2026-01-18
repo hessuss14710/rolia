@@ -115,27 +115,46 @@ export default function PTTButton({ roomCode, onResult, onProcessing, disabled }
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
       disabled={disabled || processing}
-      className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all shrink-0 select-none ${
+      className={`relative w-16 h-16 rounded-2xl flex items-center justify-center transition-all shrink-0 select-none ${
         recording
-          ? 'bg-red-500 scale-110 ptt-recording'
+          ? 'bg-gradient-to-br from-red-500 to-pink-500 scale-110 ptt-recording shadow-xl shadow-red-500/50'
           : processing
-          ? 'bg-yellow-500'
+          ? 'bg-gradient-to-br from-yellow-500 to-amber-500'
           : disabled
-          ? 'bg-gray-600'
-          : 'bg-rolia-600 hover:bg-rolia-500 active:scale-95'
+          ? 'bg-gray-700 opacity-50 cursor-not-allowed'
+          : 'bg-gradient-to-br from-neon-purple to-neon-pink hover:scale-105 hover:shadow-lg hover:shadow-neon-purple/40 active:scale-95'
       }`}
       style={{ touchAction: 'none' }}
     >
-      {processing ? (
-        <div className="spinner"></div>
-      ) : recording ? (
-        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="6" />
-        </svg>
-      ) : (
-        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-        </svg>
+      {/* Glow effect */}
+      <div className={`absolute inset-0 rounded-2xl blur-xl transition-opacity ${
+        recording ? 'bg-red-500 opacity-50' : 'bg-neon-purple opacity-0'
+      }`} />
+
+      {/* Icon */}
+      <div className="relative z-10">
+        {processing ? (
+          <div className="spinner" />
+        ) : recording ? (
+          <div className="relative">
+            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="6" />
+            </svg>
+            {/* Pulse rings */}
+            <div className="absolute inset-0 -m-2 rounded-full border-2 border-white/50 animate-ping" />
+          </div>
+        ) : (
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+          </svg>
+        )}
+      </div>
+
+      {/* Label */}
+      {!processing && !recording && !disabled && (
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-gray-500 whitespace-nowrap font-medium">
+          Mantener
+        </div>
       )}
     </button>
   );

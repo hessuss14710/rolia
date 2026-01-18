@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
 const DICE_TYPES = [
-  { value: 'd4', label: 'D4', icon: '◆' },
-  { value: 'd6', label: 'D6', icon: '⬡' },
-  { value: 'd8', label: 'D8', icon: '◇' },
-  { value: 'd10', label: 'D10', icon: '◈' },
-  { value: 'd12', label: 'D12', icon: '⬢' },
-  { value: 'd20', label: 'D20', icon: '⬟' },
-  { value: 'd100', label: 'D100', icon: '◉' }
+  { value: 'd4', label: 'D4', icon: '◆', color: 'from-green-500 to-emerald-600' },
+  { value: 'd6', label: 'D6', icon: '⬡', color: 'from-blue-500 to-cyan-600' },
+  { value: 'd8', label: 'D8', icon: '◇', color: 'from-purple-500 to-violet-600' },
+  { value: 'd10', label: 'D10', icon: '◈', color: 'from-pink-500 to-rose-600' },
+  { value: 'd12', label: 'D12', icon: '⬢', color: 'from-orange-500 to-amber-600' },
+  { value: 'd20', label: 'D20', icon: '⬟', color: 'from-neon-purple to-neon-pink' },
+  { value: 'd100', label: 'D100', icon: '◉', color: 'from-red-500 to-orange-600' }
 ];
 
 export default function DiceRoller({ onRoll, onClose }) {
@@ -18,11 +18,12 @@ export default function DiceRoller({ onRoll, onClose }) {
   const [rolling, setRolling] = useState(false);
   const [result, setResult] = useState(null);
 
+  const selectedDiceData = DICE_TYPES.find(d => d.value === selectedDice);
+
   function handleRoll() {
     setRolling(true);
     setResult(null);
 
-    // Local roll for immediate feedback
     const match = selectedDice.match(/d(\d+)/);
     const sides = parseInt(match[1], 10);
     const results = [];
@@ -34,7 +35,7 @@ export default function DiceRoller({ onRoll, onClose }) {
     setTimeout(() => {
       setResult({ results, total });
       setRolling(false);
-    }, 500);
+    }, 600);
   }
 
   function handleConfirm() {
@@ -42,75 +43,82 @@ export default function DiceRoller({ onRoll, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-      <div className="glass rounded-2xl p-6 w-full max-w-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Tirar dados</h2>
+    <div className="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
+      <div className="glass rounded-3xl p-6 w-full max-w-md animate-scale-in">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-display text-2xl font-bold tracking-wide flex items-center gap-3">
+            <span className="text-3xl">🎲</span> Tirar Dados
+          </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-lg"
+            className="p-2 hover:bg-white/10 rounded-xl transition-colors"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Dice Type Selection */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
+        <div className="grid grid-cols-4 gap-2 mb-6">
           {DICE_TYPES.map((dice) => (
             <button
               key={dice.value}
               onClick={() => setSelectedDice(dice.value)}
-              className={`py-3 rounded-lg text-center transition-all ${
+              className={`py-4 rounded-xl text-center transition-all ${
                 selectedDice === dice.value
-                  ? 'bg-rolia-600 scale-105'
-                  : 'bg-white/10 hover:bg-white/20'
+                  ? `bg-gradient-to-br ${dice.color} scale-105 shadow-lg`
+                  : 'bg-white/5 border border-white/10 hover:border-neon-purple/50 hover:bg-white/10'
               }`}
             >
               <div className="text-2xl mb-1">{dice.icon}</div>
-              <div className="text-xs">{dice.label}</div>
+              <div className="text-xs font-display font-bold">{dice.label}</div>
             </button>
           ))}
         </div>
 
         {/* Count and Modifier */}
-        <div className="flex gap-4 mb-4">
+        <div className="flex gap-4 mb-6">
           <div className="flex-1">
-            <label className="block text-xs text-gray-400 mb-1">Cantidad</label>
-            <div className="flex items-center">
+            <label className="block text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">
+              Cantidad
+            </label>
+            <div className="flex items-center bg-white/5 rounded-xl border border-white/10">
               <button
                 onClick={() => setCount(Math.max(1, count - 1))}
-                className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-l-lg"
+                className="w-12 h-12 hover:bg-white/10 rounded-l-xl text-xl font-bold transition-colors"
               >
                 -
               </button>
-              <div className="w-12 h-10 bg-white/5 flex items-center justify-center font-mono text-lg">
+              <div className="flex-1 text-center font-display font-bold text-2xl">
                 {count}
               </div>
               <button
                 onClick={() => setCount(Math.min(10, count + 1))}
-                className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-r-lg"
+                className="w-12 h-12 hover:bg-white/10 rounded-r-xl text-xl font-bold transition-colors"
               >
                 +
               </button>
             </div>
           </div>
           <div className="flex-1">
-            <label className="block text-xs text-gray-400 mb-1">Modificador</label>
-            <div className="flex items-center">
+            <label className="block text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">
+              Modificador
+            </label>
+            <div className="flex items-center bg-white/5 rounded-xl border border-white/10">
               <button
                 onClick={() => setModifier(modifier - 1)}
-                className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-l-lg"
+                className="w-12 h-12 hover:bg-white/10 rounded-l-xl text-xl font-bold transition-colors"
               >
                 -
               </button>
-              <div className="w-12 h-10 bg-white/5 flex items-center justify-center font-mono text-lg">
+              <div className={`flex-1 text-center font-display font-bold text-2xl ${modifier > 0 ? 'text-neon-green' : modifier < 0 ? 'text-red-400' : ''}`}>
                 {modifier >= 0 ? '+' : ''}{modifier}
               </div>
               <button
                 onClick={() => setModifier(modifier + 1)}
-                className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-r-lg"
+                className="w-12 h-12 hover:bg-white/10 rounded-r-xl text-xl font-bold transition-colors"
               >
                 +
               </button>
@@ -119,23 +127,25 @@ export default function DiceRoller({ onRoll, onClose }) {
         </div>
 
         {/* Reason */}
-        <div className="mb-4">
-          <label className="block text-xs text-gray-400 mb-1">Razon (opcional)</label>
+        <div className="mb-6">
+          <label className="block text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">
+            Razon (opcional)
+          </label>
           <input
             type="text"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="Ataque, habilidad, salvacion..."
-            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm"
+            className="input-cyber w-full"
           />
         </div>
 
         {/* Preview */}
-        <div className="text-center mb-4 py-3 bg-white/5 rounded-lg">
-          <span className="text-2xl font-mono font-bold text-rolia-400">
+        <div className={`text-center mb-6 py-4 rounded-2xl bg-gradient-to-br ${selectedDiceData?.color || 'from-neon-purple to-neon-pink'} bg-opacity-20`}>
+          <span className="font-display text-4xl font-black">
             {count}{selectedDice}
             {modifier !== 0 && (
-              <span className="text-gray-400">
+              <span className={modifier > 0 ? 'text-neon-green' : 'text-red-400'}>
                 {modifier > 0 ? '+' : ''}{modifier}
               </span>
             )}
@@ -144,20 +154,20 @@ export default function DiceRoller({ onRoll, onClose }) {
 
         {/* Result */}
         {result && (
-          <div className={`text-center mb-4 py-4 bg-rolia-600/30 rounded-lg ${rolling ? 'dice-rolling' : ''}`}>
-            <div className="flex items-center justify-center gap-2 mb-2 flex-wrap">
+          <div className={`text-center mb-6 py-6 bg-gradient-to-br from-neon-purple/20 to-neon-pink/20 rounded-2xl border border-neon-purple/30 ${rolling ? 'dice-rolling' : ''}`}>
+            <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
               {result.results.map((r, i) => (
-                <span key={i} className="bg-white/20 rounded px-3 py-1 font-mono text-lg">
+                <span key={i} className="bg-gradient-to-r from-neon-purple to-neon-pink rounded-xl px-4 py-2 font-display font-bold text-2xl dice-result shadow-lg">
                   {r}
                 </span>
               ))}
               {modifier !== 0 && (
-                <span className="text-gray-400 text-lg">
+                <span className={`text-2xl font-bold ${modifier > 0 ? 'text-neon-green' : 'text-red-400'}`}>
                   {modifier > 0 ? '+' : ''}{modifier}
                 </span>
               )}
             </div>
-            <div className="text-4xl font-bold">{result.total}</div>
+            <div className="text-6xl font-display font-black">{result.total}</div>
           </div>
         )}
 
@@ -167,13 +177,13 @@ export default function DiceRoller({ onRoll, onClose }) {
             <button
               onClick={handleRoll}
               disabled={rolling}
-              className="flex-1 bg-rolia-600 hover:bg-rolia-500 py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
+              className="btn-neon flex-1 py-4 text-lg flex items-center justify-center gap-3"
             >
               {rolling ? (
-                <div className="spinner"></div>
+                <div className="spinner" />
               ) : (
                 <>
-                  <span>🎲</span> Tirar
+                  <span className="text-2xl">🎲</span> Tirar
                 </>
               )}
             </button>
@@ -181,13 +191,13 @@ export default function DiceRoller({ onRoll, onClose }) {
             <>
               <button
                 onClick={() => setResult(null)}
-                className="flex-1 bg-white/10 hover:bg-white/20 py-3 rounded-lg"
+                className="btn-neon-outline flex-1 py-4"
               >
                 Repetir
               </button>
               <button
                 onClick={handleConfirm}
-                className="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-lg font-semibold"
+                className="flex-1 py-4 rounded-full font-display font-bold uppercase tracking-wide bg-gradient-to-r from-neon-green to-emerald-400 text-black hover:shadow-lg hover:shadow-neon-green/30 transition-all"
               >
                 Enviar
               </button>

@@ -31,6 +31,14 @@ const statNames = {
   punteria: 'Punteria'
 };
 
+const statIcons = {
+  str: '💪', dex: '🏃', con: '🛡️', int: '🧠', wis: '👁️', cha: '💬',
+  tech: '🔧', combat: '⚔️', pilot: '🚀', science: '🔬', social: '🤝', survival: '🏕️',
+  fuerza: '💪', agilidad: '🏃', resistencia: '🛡️', percepcion: '👁️', voluntad: '🧠', cordura: '😰',
+  cuerpo: '💪', reflejos: '⚡', tecnica: '🔧', inteligencia: '🧠', carisma: '💬', suerte: '🍀',
+  navegacion: '🧭', punteria: '🎯'
+};
+
 export default function CharacterCreate() {
   const { code } = useParams();
   const navigate = useNavigate();
@@ -40,6 +48,7 @@ export default function CharacterCreate() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [rolling, setRolling] = useState(false);
 
   const [name, setName] = useState('');
   const [characterClass, setCharacterClass] = useState('');
@@ -80,7 +89,7 @@ export default function CharacterCreate() {
   }
 
   function rollStats() {
-    // Roll 3d6 for each stat (classic D&D style)
+    setRolling(true);
     const newStats = {};
     for (const key of Object.keys(stats)) {
       const rolls = [
@@ -90,7 +99,10 @@ export default function CharacterCreate() {
       ];
       newStats[key] = rolls.reduce((a, b) => a + b, 0);
     }
-    setStats(newStats);
+    setTimeout(() => {
+      setStats(newStats);
+      setRolling(false);
+    }, 500);
   }
 
   function updateStat(key, delta) {
@@ -132,7 +144,10 @@ export default function CharacterCreate() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="spinner"></div>
+        <div className="bg-animation" />
+        <div className="stars" />
+        <div className="grid-overlay" />
+        <div className="spinner-large" />
       </div>
     );
   }
@@ -140,53 +155,62 @@ export default function CharacterCreate() {
   const classes = theme?.example_classes || ['Aventurero'];
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen relative pb-24">
+      {/* Animated backgrounds */}
+      <div className="bg-animation" />
+      <div className="stars" />
+      <div className="grid-overlay" />
+
       {/* Header */}
-      <header className="glass sticky top-0 z-10 px-4 py-3">
-        <div className="flex items-center gap-3">
+      <header className="glass-strong sticky top-0 z-20 px-4 py-4">
+        <div className="max-w-lg mx-auto flex items-center gap-4">
           <button
             onClick={() => navigate(`/rol/room/${code}`)}
-            className="p-2 hover:bg-white/10 rounded-lg"
+            className="p-2 hover:bg-white/10 rounded-xl transition-colors"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="font-semibold flex-1">
-            {existingCharacter ? 'Editar personaje' : 'Crear personaje'}
+          <h1 className="font-display font-bold text-xl tracking-wide">
+            {existingCharacter ? 'Editar Personaje' : 'Crear Personaje'}
           </h1>
         </div>
       </header>
 
-      <main className="p-4 max-w-lg mx-auto">
-        <form onSubmit={handleSave} className="space-y-4">
+      <main className="relative z-10 p-4 max-w-lg mx-auto">
+        <form onSubmit={handleSave} className="space-y-6">
           {/* Name */}
-          <div className="glass rounded-xl p-4">
-            <label className="block text-sm text-gray-400 mb-2">Nombre</label>
+          <div className="card-cyber rounded-2xl p-5 animate-fade-in">
+            <label className="block text-sm text-gray-400 mb-3 font-medium tracking-wide uppercase flex items-center gap-2">
+              <span>✨</span> Nombre del Personaje
+            </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-lg"
-              placeholder="Nombre de tu personaje"
+              className="input-cyber w-full text-xl font-display"
+              placeholder="Nombre legendario..."
               required
               autoFocus
             />
           </div>
 
           {/* Class */}
-          <div className="glass rounded-xl p-4">
-            <label className="block text-sm text-gray-400 mb-2">Clase</label>
-            <div className="grid grid-cols-2 gap-2">
+          <div className="card-cyber rounded-2xl p-5">
+            <label className="block text-sm text-gray-400 mb-3 font-medium tracking-wide uppercase flex items-center gap-2">
+              <span>⚔️</span> Clase
+            </label>
+            <div className="grid grid-cols-2 gap-3">
               {classes.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setCharacterClass(c)}
-                  className={`py-2 px-3 rounded-lg border text-sm transition-colors ${
+                  className={`py-3 px-4 rounded-xl text-sm font-display font-bold transition-all ${
                     characterClass === c
-                      ? 'border-rolia-500 bg-rolia-500/20'
-                      : 'border-white/10 bg-white/5 hover:bg-white/10'
+                      ? 'bg-gradient-to-r from-neon-purple to-neon-pink text-white shadow-lg shadow-neon-purple/30'
+                      : 'bg-white/5 border border-white/10 hover:border-neon-purple/50 hover:bg-white/10'
                   }`}
                 >
                   {c}
@@ -196,41 +220,48 @@ export default function CharacterCreate() {
           </div>
 
           {/* Stats */}
-          <div className="glass rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-sm text-gray-400">Estadisticas</label>
+          <div className="card-cyber rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <label className="text-sm text-gray-400 font-medium tracking-wide uppercase flex items-center gap-2">
+                <span>📊</span> Estadisticas
+              </label>
               <button
                 type="button"
                 onClick={rollStats}
-                className="text-sm text-rolia-400 hover:text-rolia-300 flex items-center gap-1"
+                disabled={rolling}
+                className="btn-neon-outline px-4 py-2 text-sm flex items-center gap-2"
               >
-                🎲 Tirar dados
+                <span className={rolling ? 'dice-rolling' : ''}>🎲</span>
+                Tirar dados
               </button>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-4">
               {Object.entries(stats).map(([key, value]) => (
                 <div key={key} className="flex items-center gap-3">
-                  <span className="text-sm text-gray-400 w-24 truncate">
+                  <span className="text-xl w-8">{statIcons[key] || '📌'}</span>
+                  <span className="text-sm text-gray-400 w-24 truncate font-medium">
                     {statNames[key] || key}
                   </span>
                   <button
                     type="button"
                     onClick={() => updateStat(key, -1)}
-                    className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center"
+                    className="w-10 h-10 rounded-xl bg-white/10 hover:bg-red-500/30 flex items-center justify-center text-lg font-bold transition-colors"
                   >
                     -
                   </button>
-                  <span className="w-8 text-center font-mono text-lg">{value}</span>
+                  <span className={`w-12 text-center font-display font-bold text-2xl ${value >= 15 ? 'text-neon-green' : value <= 8 ? 'text-red-400' : 'text-white'}`}>
+                    {value}
+                  </span>
                   <button
                     type="button"
                     onClick={() => updateStat(key, 1)}
-                    className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center"
+                    className="w-10 h-10 rounded-xl bg-white/10 hover:bg-neon-green/30 flex items-center justify-center text-lg font-bold transition-colors"
                   >
                     +
                   </button>
-                  <div className="flex-1 bg-white/10 rounded-full h-2">
+                  <div className="flex-1 stat-bar">
                     <div
-                      className="bg-rolia-500 rounded-full h-full transition-all"
+                      className={`stat-bar-fill ${value >= 15 ? 'hp-full' : value >= 10 ? 'bg-gradient-to-r from-neon-blue to-neon-cyan' : 'hp-low'}`}
                       style={{ width: `${(value / 20) * 100}%` }}
                     />
                   </div>
@@ -240,20 +271,25 @@ export default function CharacterCreate() {
           </div>
 
           {/* Background */}
-          <div className="glass rounded-xl p-4">
-            <label className="block text-sm text-gray-400 mb-2">Historia (opcional)</label>
+          <div className="card-cyber rounded-2xl p-5">
+            <label className="block text-sm text-gray-400 mb-3 font-medium tracking-wide uppercase flex items-center gap-2">
+              <span>📜</span> Historia (opcional)
+            </label>
             <textarea
               value={background}
               onChange={(e) => setBackground(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white resize-none"
-              placeholder="Describe el trasfondo de tu personaje..."
+              className="input-cyber w-full resize-none"
+              placeholder="Describe el trasfondo de tu personaje, su historia, motivaciones..."
               rows={4}
             />
           </div>
 
           {error && (
-            <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-red-300 text-sm">
-              {error}
+            <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 text-red-300 text-sm animate-fade-in">
+              <div className="flex items-center gap-2">
+                <span>⚠️</span>
+                {error}
+              </div>
             </div>
           )}
 
@@ -261,14 +297,15 @@ export default function CharacterCreate() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-rolia-600 hover:bg-rolia-500 disabled:bg-rolia-800 py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2"
+            className="btn-neon w-full py-5 text-xl flex items-center justify-center gap-3"
           >
             {saving ? (
-              <span className="spinner"></span>
-            ) : existingCharacter ? (
-              'Guardar cambios'
+              <div className="spinner" />
             ) : (
-              'Crear personaje'
+              <>
+                <span>✨</span>
+                {existingCharacter ? 'Guardar cambios' : 'Crear personaje'}
+              </>
             )}
           </button>
         </form>

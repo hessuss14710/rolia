@@ -19,6 +19,14 @@ const themeNames = {
   pirates: 'Piratas'
 };
 
+const themeColors = {
+  fantasy: 'from-blue-600/20 to-purple-600/20 border-blue-500/30',
+  scifi: 'from-cyan-600/20 to-blue-600/20 border-cyan-500/30',
+  horror: 'from-red-900/20 to-gray-900/20 border-red-500/30',
+  cyberpunk: 'from-pink-600/20 to-purple-600/20 border-pink-500/30',
+  pirates: 'from-amber-600/20 to-orange-600/20 border-amber-500/30'
+};
+
 export default function Lobby() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -63,16 +71,16 @@ export default function Lobby() {
 
   function getStatusColor(status) {
     switch (status) {
-      case 'playing': return 'bg-green-500';
+      case 'playing': return 'bg-neon-green';
       case 'paused': return 'bg-yellow-500';
       case 'ended': return 'bg-gray-500';
-      default: return 'bg-blue-500';
+      default: return 'bg-neon-blue';
     }
   }
 
   function getStatusText(status) {
     switch (status) {
-      case 'playing': return 'Jugando';
+      case 'playing': return 'En juego';
       case 'paused': return 'Pausada';
       case 'ended': return 'Terminada';
       default: return 'Esperando';
@@ -82,82 +90,118 @@ export default function Lobby() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="spinner"></div>
+        <div className="bg-animation" />
+        <div className="stars" />
+        <div className="grid-overlay" />
+        <div className="spinner-large" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen relative pb-24">
+      {/* Animated backgrounds */}
+      <div className="bg-animation" />
+      <div className="stars" />
+      <div className="grid-overlay" />
+
       {/* Header */}
-      <header className="glass sticky top-0 z-10 px-4 py-3 flex items-center justify-between">
-        <h1 className="text-xl font-fantasy font-bold text-rolia-400">RolIA</h1>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-400">{user?.username}</span>
-          <button
-            onClick={logout}
-            className="text-gray-400 hover:text-white p-2"
-            title="Cerrar sesion"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-          </button>
+      <header className="glass-strong sticky top-0 z-20 px-4 py-4">
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <h1 className="logo-text text-2xl">ROLIA</h1>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-neon-purple to-neon-pink flex items-center justify-center text-sm font-bold">
+                {user?.username?.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-sm text-gray-400 hidden sm:block">{user?.username}</span>
+            </div>
+            <button
+              onClick={logout}
+              className="text-gray-400 hover:text-neon-pink p-2 transition-colors"
+              title="Cerrar sesion"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="p-4 max-w-lg mx-auto">
+      <main className="relative z-10 p-4 max-w-lg mx-auto">
+        {/* Welcome message */}
+        <div className="text-center mb-6 animate-fade-in">
+          <h2 className="font-display text-xl font-bold text-gray-200 tracking-wide">
+            Bienvenido, <span className="text-neon-purple">{user?.username}</span>
+          </h2>
+        </div>
+
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-2 gap-4 mb-8">
           <button
             onClick={() => setShowCreateModal(true)}
-            className="glass card-hover rounded-xl p-4 text-center"
+            className="card-cyber p-5 text-center group"
           >
-            <div className="text-3xl mb-2">+</div>
-            <div className="font-semibold">Crear sala</div>
+            <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">✨</div>
+            <div className="font-display font-bold text-lg tracking-wide">Crear sala</div>
+            <div className="text-xs text-gray-500 mt-1">Nueva aventura</div>
           </button>
           <button
             onClick={() => setShowJoinModal(true)}
-            className="glass card-hover rounded-xl p-4 text-center"
+            className="card-cyber p-5 text-center group"
           >
-            <div className="text-3xl mb-2">🔑</div>
-            <div className="font-semibold">Unirse</div>
+            <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">🔑</div>
+            <div className="font-display font-bold text-lg tracking-wide">Unirse</div>
+            <div className="text-xs text-gray-500 mt-1">Con codigo</div>
           </button>
         </div>
 
         {/* Rooms List */}
-        <h2 className="text-lg font-semibold mb-3 text-gray-300">Mis partidas</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display text-lg font-bold text-gray-300 tracking-wide uppercase">
+            Mis partidas
+          </h2>
+          <span className="text-xs text-gray-500">{rooms.length} activas</span>
+        </div>
 
         {rooms.length === 0 ? (
-          <div className="glass rounded-xl p-8 text-center text-gray-400">
-            <div className="text-4xl mb-3">🎭</div>
-            <p>No tienes partidas activas</p>
-            <p className="text-sm mt-1">Crea una sala o unete con un codigo</p>
+          <div className="glass rounded-2xl p-10 text-center animate-fade-in">
+            <div className="text-6xl mb-4 opacity-50">🎭</div>
+            <p className="text-gray-400 text-lg mb-2">No tienes partidas activas</p>
+            <p className="text-gray-600 text-sm">Crea una sala o unete con un codigo</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {rooms.map((room) => (
+          <div className="space-y-4">
+            {rooms.map((room, index) => (
               <button
                 key={room.id}
                 onClick={() => navigate(`/rol/room/${room.code}`)}
-                className="glass card-hover rounded-xl p-4 w-full text-left"
+                className={`w-full text-left rounded-2xl p-5 border transition-all hover:scale-[1.02] hover:shadow-lg bg-gradient-to-br ${themeColors[room.theme] || 'from-gray-800/20 to-gray-900/20 border-gray-500/30'}`}
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex items-start gap-3">
-                  <div className="text-3xl">{themeIcons[room.theme] || '🎲'}</div>
+                <div className="flex items-start gap-4">
+                  <div className="text-4xl">{themeIcons[room.theme] || '🎲'}</div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold truncate">{room.name}</h3>
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${getStatusColor(room.status)}`}>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="font-display font-bold text-lg truncate">{room.name}</h3>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(room.status)}`}>
                         {getStatusText(room.status)}
                       </span>
                     </div>
-                    <div className="text-sm text-gray-400">
-                      {themeNames[room.theme] || room.theme} • {room.player_count}/{room.max_players} jugadores
+                    <div className="text-sm text-gray-400 flex items-center gap-2">
+                      <span>{themeNames[room.theme] || room.theme}</span>
+                      <span className="text-gray-600">•</span>
+                      <span>{room.player_count}/{room.max_players} jugadores</span>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Codigo: <span className="font-mono text-rolia-400">{room.code}</span>
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-xs text-gray-500">Codigo:</span>
+                      <span className="room-code text-sm">{room.code}</span>
                     </div>
                   </div>
+                  <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </div>
               </button>
             ))}
@@ -179,24 +223,28 @@ export default function Lobby() {
 
       {/* Join Room Modal */}
       {showJoinModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="glass rounded-2xl p-6 w-full max-w-sm">
-            <h2 className="text-xl font-semibold mb-4">Unirse a sala</h2>
+        <div className="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
+          <div className="glass rounded-3xl p-8 w-full max-w-sm animate-scale-in">
+            <h2 className="font-display text-2xl font-bold text-center mb-6 tracking-wide">
+              Unirse a sala
+            </h2>
             <form onSubmit={handleJoinRoom}>
               <input
                 type="text"
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white text-center text-2xl font-mono tracking-widest uppercase"
+                className="w-full bg-dark-darker border-2 border-neon-purple/50 rounded-xl px-6 py-4 text-white text-center text-3xl font-display font-bold tracking-[0.5em] uppercase focus:border-neon-purple focus:outline-none focus:shadow-lg focus:shadow-neon-purple/20 transition-all"
                 placeholder="CODIGO"
                 maxLength={6}
                 required
                 autoFocus
               />
               {error && (
-                <div className="mt-3 text-red-400 text-sm text-center">{error}</div>
+                <div className="mt-4 text-red-400 text-sm text-center flex items-center justify-center gap-2">
+                  <span>⚠️</span> {error}
+                </div>
               )}
-              <div className="flex gap-3 mt-4">
+              <div className="flex gap-3 mt-6">
                 <button
                   type="button"
                   onClick={() => {
@@ -204,13 +252,13 @@ export default function Lobby() {
                     setJoinCode('');
                     setError('');
                   }}
-                  className="flex-1 bg-white/10 hover:bg-white/20 py-3 rounded-lg"
+                  className="btn-neon-outline flex-1 py-4"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-rolia-600 hover:bg-rolia-500 py-3 rounded-lg font-semibold"
+                  className="btn-neon flex-1 py-4"
                 >
                   Unirse
                 </button>
@@ -245,17 +293,21 @@ function CreateRoomModal({ themes, onClose, onCreated }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-      <div className="glass rounded-2xl p-6 w-full max-w-sm">
-        <h2 className="text-xl font-semibold mb-4">Crear nueva sala</h2>
-        <form onSubmit={handleCreate} className="space-y-4">
+    <div className="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-50">
+      <div className="glass rounded-3xl p-8 w-full max-w-md animate-scale-in max-h-[90vh] overflow-y-auto">
+        <h2 className="font-display text-2xl font-bold text-center mb-6 tracking-wide">
+          Nueva Aventura
+        </h2>
+        <form onSubmit={handleCreate} className="space-y-6">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Nombre de la partida</label>
+            <label className="block text-sm text-gray-400 mb-2 font-medium tracking-wide uppercase">
+              Nombre de la partida
+            </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white"
+              className="input-cyber w-full"
               placeholder="La aventura comienza..."
               required
               autoFocus
@@ -263,22 +315,24 @@ function CreateRoomModal({ themes, onClose, onCreated }) {
           </div>
 
           <div>
-            <label className="block text-sm text-gray-400 mb-2">Tematica</label>
-            <div className="grid grid-cols-2 gap-2">
+            <label className="block text-sm text-gray-400 mb-3 font-medium tracking-wide uppercase">
+              Elige tu mundo
+            </label>
+            <div className="grid grid-cols-2 gap-3">
               {themes.map((t) => (
                 <button
                   key={t.id}
                   type="button"
                   onClick={() => setTheme(t.name)}
-                  className={`p-3 rounded-lg border transition-colors text-left ${
+                  className={`theme-card p-4 text-left ${
                     theme === t.name
-                      ? 'border-rolia-500 bg-rolia-500/20'
-                      : 'border-white/10 bg-white/5 hover:bg-white/10'
-                  }`}
+                      ? 'ring-2 ring-neon-purple shadow-lg shadow-neon-purple/20'
+                      : ''
+                  } ${themeColors[t.name]?.split(' ')[0] || ''} bg-gradient-to-br ${themeColors[t.name] || 'from-gray-800/20 to-gray-900/20 border-gray-500/30'}`}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{themeIcons[t.name] || '🎲'}</span>
-                    <span className="text-sm font-medium">{themeNames[t.name] || t.name}</span>
+                  <div className="relative z-10">
+                    <div className="text-3xl mb-2">{themeIcons[t.name] || '🎲'}</div>
+                    <div className="font-display font-bold text-sm">{themeNames[t.name] || t.name}</div>
                   </div>
                 </button>
               ))}
@@ -286,23 +340,29 @@ function CreateRoomModal({ themes, onClose, onCreated }) {
           </div>
 
           {error && (
-            <div className="text-red-400 text-sm">{error}</div>
+            <div className="text-red-400 text-sm text-center flex items-center justify-center gap-2">
+              <span>⚠️</span> {error}
+            </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-white/10 hover:bg-white/20 py-3 rounded-lg"
+              className="btn-neon-outline flex-1 py-4"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-rolia-600 hover:bg-rolia-500 disabled:bg-rolia-800 py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
+              className="btn-neon flex-1 py-4 flex items-center justify-center gap-2"
             >
-              {loading ? <span className="spinner"></span> : 'Crear'}
+              {loading ? <div className="spinner" /> : (
+                <>
+                  <span>✨</span> Crear
+                </>
+              )}
             </button>
           </div>
         </form>
