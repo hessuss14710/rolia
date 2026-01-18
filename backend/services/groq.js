@@ -231,7 +231,7 @@ async function generateResponse({ systemPrompt, gameContext, recentHistory, user
 
   try {
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.1-70b-versatile',
+      model: 'llama-3.3-70b-versatile',
       messages,
       temperature: 0.8,
       max_tokens: 1024,
