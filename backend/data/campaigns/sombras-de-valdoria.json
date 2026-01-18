@@ -1,0 +1,802 @@
+{
+  "campaign": {
+    "code": "sombras-valdoria",
+    "name": "Las Sombras de Valdoria",
+    "synopsis": "En el reino de Valdoria, los jugadores son convocados como héroes para investigar la desaparición del Príncipe Aldric. Lo que comienza como una simple misión de rescate se convierte en una conspiración que involucra traición real, magia prohibida, y la revelación de que el verdadero enemigo ha estado a su lado todo el tiempo.",
+    "tone": "mystery",
+    "difficulty": "standard",
+    "estimated_sessions": 12,
+    "total_acts": 4
+  },
+  "acts": [
+    {
+      "act_number": 1,
+      "title": "El Llamado",
+      "description": "Los héroes llegan a la capital de Valdoria y comienzan su investigación sobre la desaparición del Príncipe Aldric.",
+      "objectives": [
+        "Presentarse ante la Reina Isadora",
+        "Investigar los aposentos del príncipe",
+        "Descubrir las primeras pistas sobre su desaparición"
+      ],
+      "estimated_sessions": 4,
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title": "La Convocatoria",
+          "narrative_hook": "Rumores de la desaparición del Príncipe Aldric han llegado hasta los rincones más remotos del reino. Un mensajero real busca a héroes dignos de confianza para una misión de suma importancia.",
+          "key_npcs": ["varen", "isadora"],
+          "locations": ["castillo_valdoria", "salon_trono"],
+          "scenes": [
+            {
+              "scene_order": 1,
+              "scene_type": "narrative",
+              "title": "Llegada a la Capital",
+              "opening_narration": "Las torres del Castillo de Valdoria se alzan contra el cielo gris mientras vuestro grupo atraviesa las puertas de la ciudad capital. Guardias con capas púrpura os observan con una mezcla de esperanza y desconfianza. La noticia de la desaparición del príncipe ha sumido a la ciudad en un silencio tenso.",
+              "ai_context": "Los jugadores llegan a la capital. Describir el ambiente sombrío, los susurros de los ciudadanos, y la tensión palpable. Un sirviente del castillo los espera para guiarlos.",
+              "ai_secret_instructions": "Introducir sutilmente que Lord Varen fue quien recomendó contratar aventureros. Mencionar de pasada que el Consejero Real ha estado 'muy ocupado' desde la desaparición.",
+              "tension_level": "normal",
+              "victory_conditions": {},
+              "failure_conditions": {},
+              "rewards": {}
+            },
+            {
+              "scene_order": 2,
+              "scene_type": "social",
+              "title": "El Consejero Real",
+              "opening_narration": "Lord Varen os recibe en sus aposentos privados antes de la audiencia con la Reina. Es un hombre de mediana edad, con ojos calculadores y una sonrisa que no llega del todo a sus ojos. 'Bienvenidos, héroes. La Reina está... devastada. Confío en vuestra discreción.'",
+              "ai_context": "Lord Varen es aparentemente servicial pero secretamente manipulador. Ofrece información que parece útil pero guía sutilmente lejos de la verdad. Sugiere que el príncipe pudo haber sido secuestrado por la Orden de la Llama Negra.",
+              "ai_secret_instructions": "Varen está probando a los jugadores para ver si puede manipularlos. Si preguntan demasiado sobre él, cambia de tema con elegancia. Menciona 'casualmente' que la taberna El Cáliz Roto era frecuentada por el príncipe.",
+              "tension_level": "normal"
+            },
+            {
+              "scene_order": 3,
+              "scene_type": "social",
+              "title": "Audiencia con la Reina",
+              "opening_narration": "La Reina Isadora os recibe en el salón del trono. Sus ojos, enrojecidos pero dignos, os estudian mientras Lord Varen permanece a su lado. 'Encontrad a mi hijo', dice con voz firme pero quebrada. 'Sea cual sea el precio.'",
+              "ai_context": "La Reina está genuinamente preocupada. Es una gobernante justa pero lleva un secreto: sabe que Aldric no es su hijo biológico. Lord Varen la observa con atención.",
+              "ai_secret_instructions": "La Reina evita mencionar ciertos detalles sobre la noche de la desaparición. Si preguntan por el padre del príncipe (el Rey anterior), hay una pausa incómoda. Varen interviene rápidamente.",
+              "tension_level": "normal"
+            },
+            {
+              "scene_order": 4,
+              "scene_type": "investigation",
+              "title": "Los Aposentos del Príncipe",
+              "opening_narration": "Las habitaciones del Príncipe Aldric permanecen intactas por orden de la Reina. Un olor a tinta vieja y pergamino llena el aire. Libros sobre historia antigua cubren el escritorio, y hay marcas de que algunos fueron retirados apresuradamente.",
+              "ai_context": "Pistas a encontrar: un diario parcialmente quemado mencionando 'El Pacto Carmesí', una carta sin terminar dirigida a alguien llamado 'L', y un medallón oculto con el símbolo de una llama negra (dejado por los atacantes, no del príncipe).",
+              "ai_secret_instructions": "El príncipe estaba investigando una conspiración. Los jugadores pueden encontrar: 1) Referencia a reuniones secretas en 'El Cáliz Roto', 2) Menciones de 'traición en la corte', 3) Un nombre: 'Lyra sabe'. Si buscan bien, encuentran el medallón de la Orden de la Llama Negra plantado como pista falsa.",
+              "tension_level": "normal",
+              "branch_triggers": [
+                {
+                  "condition": "flag:found_medallion",
+                  "target_chapter": 2,
+                  "label": "Medallón encontrado"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "chapter_number": 2,
+          "title": "Primeras Pistas",
+          "narrative_hook": "Las investigaciones llevan a los héroes a la taberna El Cáliz Roto, un establecimiento discreto en el distrito de artesanos donde el príncipe era visto frecuentemente.",
+          "key_npcs": ["lyra", "marcus"],
+          "locations": ["caliz_roto", "distrito_artesanos"],
+          "scenes": [
+            {
+              "scene_order": 1,
+              "scene_type": "social",
+              "title": "El Cáliz Roto",
+              "opening_narration": "La taberna El Cáliz Roto es un lugar acogedor, con vigas de madera oscurecidas por el humo y una clientela variada. Detrás de la barra, una mujer joven de cabello oscuro sirve bebidas con una sonrisa amable que no oculta del todo la cautela en sus ojos.",
+              "ai_context": "Lyra es la tabernera. Secretamente es una espía aliada del príncipe y hermana de Lord Varen (aunque esto último es secreto). Evalúa si puede confiar en los jugadores.",
+              "ai_secret_instructions": "Lyra reconoce el medallón de la Orden si lo muestran. Si los jugadores son respetuosos y honestos, se abre gradualmente. Si son agresivos o mienten, se cierra. Puede mencionar a 'Marcus el mercader' como alguien que vio algo sospechoso.",
+              "tension_level": "normal"
+            },
+            {
+              "scene_order": 2,
+              "scene_type": "social",
+              "title": "Las Deudas de Marcus",
+              "opening_narration": "Marcus es un mercader nervioso de manos temblorosas que bebe solo en una esquina. Sus ropas, antaño finas, muestran signos de descuido.",
+              "ai_context": "Marcus debe dinero a gente peligrosa conectada con la Orden de la Llama Negra. Vio movimientos sospechosos la noche de la desaparición pero tiene miedo de hablar. Puede ser sobornado o persuadido.",
+              "ai_secret_instructions": "Marcus vio a hombres encapuchados llevando algo (no a alguien) hacia los muelles. Si confía en los jugadores, revela que escuchó mencionar 'el Pacto Carmesí' y 'el verdadero heredero'. Esto es una mini-historia opcional que revela información sobre la conspiración.",
+              "tension_level": "normal"
+            }
+          ]
+        },
+        {
+          "chapter_number": 3,
+          "title": "El Primer Giro",
+          "narrative_hook": "Cuando los héroes profundizan en su investigación, descubren que el príncipe no fue secuestrado... huyó voluntariamente.",
+          "key_npcs": ["varen", "asesinos"],
+          "locations": ["callejones", "distrito_noble"],
+          "scenes": [
+            {
+              "scene_order": 1,
+              "scene_type": "combat",
+              "title": "Emboscada en las Sombras",
+              "opening_narration": "El callejón se estrecha y las sombras parecen cobrar vida. Figuras encapuchadas emergen bloqueando ambos extremos. El brillo de acero desnudo corta la oscuridad.",
+              "ai_context": "Combate contra 4-6 asesinos de la Orden de la Llama Negra. Son competentes pero no suicidas. Si la pelea va mal, intentan huir. Uno lleva un medallón idéntico al encontrado en los aposentos.",
+              "ai_secret_instructions": "Lord Varen aparece 'casualmente' al final del combate con guardias, 'salvando' a los jugadores. Esto planta más confianza en él. Si un asesino es capturado vivo, solo sabe que le pagaron para 'eliminar a los entrometidos'.",
+              "tension_level": "high",
+              "victory_conditions": {
+                "defeat_assassins": "Derrotar o hacer huir a los asesinos"
+              },
+              "failure_conditions": {
+                "total_party_death": "Todos los jugadores caen"
+              }
+            },
+            {
+              "scene_order": 2,
+              "scene_type": "revelation",
+              "title": "La Verdad Emerge",
+              "opening_narration": "Entre los efectos de un asesino caído encontráis una carta sellada. Al romper el sello, las palabras os dejan helados: 'El príncipe sabe demasiado. Huirá. Interceptadlo antes de que llegue al Bosque de Sombras Eternas.'",
+              "ai_context": "Esta es la revelación clave del Acto 1: El príncipe Aldric no fue secuestrado, huyó voluntariamente porque descubrió algo terrible. La carta es de hace semanas, lo que significa que el príncipe lleva tiempo escondido.",
+              "ai_secret_instructions": "El sello de la carta tiene una marca que los jugadores no reconocen, pero es el sello personal de Lord Varen (pista para más adelante). Si Lyra está presente y confía en los jugadores, confirma que el príncipe le pidió ayuda para huir.",
+              "tension_level": "high"
+            }
+          ],
+          "decisions": [
+            {
+              "decision_code": "trust_varen",
+              "title": "Confianza en Lord Varen",
+              "description": "Tras el rescate, Lord Varen ofrece su ayuda directa. ¿Confían los héroes en él?",
+              "options": [
+                {
+                  "id": "trust",
+                  "label": "Confiar en Lord Varen",
+                  "description": "Aceptar su ayuda y compartir información",
+                  "karma_effect": 0,
+                  "consequence_flags": ["trusted_varen"]
+                },
+                {
+                  "id": "investigate",
+                  "label": "Investigar a Lord Varen",
+                  "description": "Aceptar su ayuda pero investigarlo en secreto",
+                  "karma_effect": 5,
+                  "consequence_flags": ["suspicious_of_varen", "careful_approach"]
+                },
+                {
+                  "id": "confront",
+                  "label": "Confrontar a Lord Varen",
+                  "description": "Exigir respuestas sobre su oportuna aparición",
+                  "karma_effect": 0,
+                  "consequence_flags": ["confronted_varen", "varen_aware"]
+                }
+              ],
+              "affects_ending": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "act_number": 2,
+      "title": "La Telaraña",
+      "description": "Los héroes descubren la conspiración conocida como 'El Pacto Carmesí' y buscan al príncipe fugitivo en el Bosque de Sombras Eternas.",
+      "objectives": [
+        "Descubrir la verdad sobre El Pacto Carmesí",
+        "Encontrar al Príncipe Aldric",
+        "Decidir qué hacer con la verdad"
+      ],
+      "estimated_sessions": 5,
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title": "Senderos Bifurcados",
+          "narrative_hook": "La investigación toma caminos diferentes según las decisiones de los héroes. La verdad comienza a emerger de las sombras.",
+          "key_npcs": ["lyra", "varen"],
+          "scenes": [
+            {
+              "scene_order": 1,
+              "scene_type": "narrative",
+              "title": "Consecuencias de la Confianza",
+              "opening_narration": "Las decisiones pasadas comienzan a mostrar sus frutos. El camino hacia la verdad se revela diferente según los aliados que hayáis cultivado.",
+              "ai_context": "Esta escena varía según la decisión trust_varen. Si confiaron, Varen los guía hacia pistas falsas. Si investigaron, descubren conexiones sospechosas. Si confrontaron, Varen se vuelve más cauteloso.",
+              "ai_secret_instructions": "RAMA A (trusted_varen): Varen los envía a las Ruinas de Keldrath con información falsa. Emboscada preparada. RAMA B (suspicious_of_varen): Encuentran evidencia de pagos de Varen a la Orden. Lyra se acerca antes. RAMA C (confronted_varen): Varen actúa más agresivamente, pero comete errores.",
+              "tension_level": "high",
+              "branch_triggers": [
+                {
+                  "condition": "flag:trusted_varen",
+                  "label": "Camino de confianza"
+                },
+                {
+                  "condition": "flag:suspicious_of_varen",
+                  "label": "Camino de sospecha"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "chapter_number": 2,
+          "title": "El Pacto Revelado",
+          "narrative_hook": "La conspiración conocida como El Pacto Carmesí se revela: un acuerdo secreto entre nobles para derrocar a la Reina.",
+          "key_npcs": ["informante", "nobles"],
+          "scenes": [
+            {
+              "scene_order": 1,
+              "scene_type": "revelation",
+              "title": "Traición en la Corte",
+              "opening_narration": "Los documentos que habéis reunido pintan un cuadro aterrador. El Pacto Carmesí no es solo una conspiración... es un golpe de estado meticulosamente planeado que involucra a los nobles más poderosos del reino.",
+              "ai_context": "Revelación de El Pacto Carmesí: Nobles conspiran para derrocar a la Reina. El príncipe Aldric descubrió la conspiración y huyó para buscar pruebas. Lord Varen es el líder secreto del Pacto.",
+              "ai_secret_instructions": "Revelación MAYOR: La Reina Isadora NO es la madre biológica del príncipe. Aldric es hijo de Lord Varen y una dama de la corte fallecida. Varen quiere poner a su hijo en el trono... bajo su control.",
+              "tension_level": "critical"
+            }
+          ]
+        },
+        {
+          "chapter_number": 3,
+          "title": "La Búsqueda del Príncipe",
+          "narrative_hook": "El camino hacia el Bosque de Sombras Eternas promete respuestas... y peligros.",
+          "key_npcs": ["aldric", "lyra"],
+          "scenes": [
+            {
+              "scene_order": 1,
+              "scene_type": "exploration",
+              "title": "El Bosque de Sombras Eternas",
+              "opening_narration": "El Bosque de Sombras Eternas hace honor a su nombre. Los árboles son tan densos que bloquean casi toda la luz, y extraños sonidos resuenan entre las ramas. Se dice que quienes entran sin guía nunca regresan.",
+              "ai_context": "Ambiente ominoso, posibles encuentros con criaturas del bosque. Lyra (si está con el grupo y confía) conoce el camino. Sin ella, es más peligroso.",
+              "ai_secret_instructions": "Si Lyra está presente y la relación es buena, revela que ella es la 'L' de las cartas del príncipe. Son aliados desde la infancia. Si no está, el bosque es más hostil y encuentran al príncipe herido.",
+              "tension_level": "high"
+            },
+            {
+              "scene_order": 2,
+              "scene_type": "social",
+              "title": "El Príncipe Encontrado",
+              "opening_narration": "En un claro oculto, iluminado por cristales luminosos naturales, encontráis un campamento improvisado. Una figura se levanta al veros, la mano en la espada. Es el Príncipe Aldric, demacrado pero alerta.",
+              "ai_context": "El príncipe Aldric ha estado escondiéndose y reuniendo pruebas. Es inteligente, valiente pero exhausto. Tiene pruebas de la conspiración pero no sabe a quién confiar. Estudia a los jugadores cuidadosamente.",
+              "ai_secret_instructions": "Aldric revela: 1) Lord Varen es su padre biológico (no lo sabía hasta hace poco), 2) El Rey anterior fue asesinado por Varen hace 20 años, 3) La Reina siempre lo supo pero lo protegió como propio, 4) Varen planea usarlo como títere.",
+              "tension_level": "critical"
+            }
+          ],
+          "decisions": [
+            {
+              "decision_code": "help_aldric",
+              "title": "El Destino del Príncipe",
+              "description": "Aldric pide ayuda. ¿Qué hacen los héroes?",
+              "options": [
+                {
+                  "id": "expose",
+                  "label": "Exponer todo públicamente",
+                  "description": "Ayudar a Aldric a revelar la conspiración ante todo el reino",
+                  "karma_effect": 15,
+                  "consequence_flags": ["path_exposure", "aldric_ally"]
+                },
+                {
+                  "id": "negotiate",
+                  "label": "Negociar en secreto",
+                  "description": "Buscar una solución que evite una guerra civil",
+                  "karma_effect": 0,
+                  "consequence_flags": ["path_negotiation", "aldric_ally"]
+                },
+                {
+                  "id": "betray",
+                  "label": "Entregar a Aldric a Varen",
+                  "description": "Traicionar al príncipe por la recompensa prometida",
+                  "karma_effect": -30,
+                  "consequence_flags": ["path_betrayal", "aldric_enemy", "varen_ally"]
+                }
+              ],
+              "affects_ending": true
+            }
+          ]
+        }
+      ],
+      "side_stories": [
+        {
+          "code": "fantasma_molino",
+          "name": "El Fantasma del Molino",
+          "description": "Rumores de un fantasma en un viejo molino a las afueras de la ciudad.",
+          "narrative": "El 'fantasma' resulta ser un anciano que presenció el asesinato del Rey hace 20 años. Tiene pruebas de que Lord Varen envenenó al monarca.",
+          "trigger_conditions": {
+            "min_act": 2,
+            "required_flags": []
+          },
+          "rewards": {
+            "clues": ["clue_king_murder"],
+            "karma": 10
+          },
+          "connects_to_main": true,
+          "revelation_for_main": "Prueba del asesinato del Rey por Varen"
+        }
+      ]
+    },
+    {
+      "act_number": 3,
+      "title": "La Tormenta",
+      "description": "El conflicto llega a su clímax. Traiciones se revelan y lealtades son puestas a prueba.",
+      "objectives": [
+        "Preparar la confrontación final",
+        "Descubrir la verdadera lealtad de Lyra",
+        "Enfrentar a Lord Varen"
+      ],
+      "estimated_sessions": 4,
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title": "El Regreso",
+          "narrative_hook": "Con la verdad en mano, los héroes deben decidir cómo exponer la conspiración y prepararse para lo que viene.",
+          "key_npcs": ["aldric", "isadora", "lyra"],
+          "scenes": [
+            {
+              "scene_order": 1,
+              "scene_type": "narrative",
+              "title": "Preparativos",
+              "opening_narration": "El camino de regreso a la capital está cargado de tensión. Cada decisión que tomasteis os ha traído hasta aquí. Ahora, el momento de la verdad se acerca.",
+              "ai_context": "Momento de planificación. Los jugadores deciden cómo exponer a Varen. Aldric tiene pruebas pero Varen tiene poder. La Reina es una aliada potencial si la convencen.",
+              "ai_secret_instructions": "Presentar opciones: confrontación pública durante la ceremonia anual, infiltración del castillo, convencer a la Reina en privado. Cada camino tiene ventajas y riesgos.",
+              "tension_level": "high"
+            }
+          ]
+        },
+        {
+          "chapter_number": 2,
+          "title": "La Traición Final",
+          "narrative_hook": "En el momento más crítico, una verdad oculta sobre Lyra cambia todo.",
+          "key_npcs": ["lyra", "varen"],
+          "scenes": [
+            {
+              "scene_order": 1,
+              "scene_type": "revelation",
+              "title": "Lazos de Sangre",
+              "opening_narration": "En la víspera de la confrontación, Lyra os pide hablar a solas. Su rostro refleja un tormento que hasta ahora había ocultado perfectamente.",
+              "ai_context": "GIRO PRINCIPAL: Lyra es hermana de Lord Varen. Su lealtad está dividida entre su sangre y lo que es correcto. Lo que haga depende de cómo la trataron los jugadores.",
+              "ai_secret_instructions": "Si relación con jugadores es buena (>70): Elige ayudarlos contra su hermano. Si neutral (40-70): Desaparece sin ayudar a ningún lado. Si mala (<40): Los traiciona en momento crítico, revelando sus planes a Varen.",
+              "tension_level": "critical"
+            }
+          ]
+        },
+        {
+          "chapter_number": 3,
+          "title": "Confrontación",
+          "narrative_hook": "El momento ha llegado. Lord Varen debe enfrentar la justicia... o los héroes enfrentarán su ira.",
+          "key_npcs": ["varen", "aldric", "isadora"],
+          "scenes": [
+            {
+              "scene_order": 1,
+              "scene_type": "combat",
+              "title": "El Asalto al Castillo",
+              "opening_narration": "Las puertas del salón del trono se abren de par en par. Lord Varen os espera, rodeado de sus seguidores más leales. La máscara de cordialidad ha caído, revelando la ambición fría debajo.",
+              "ai_context": "Combate climático contra Varen y sus seguidores. La batalla tiene múltiples fases: seguidores, luego Varen mismo. La Reina revela que siempre supo la verdad sobre Aldric.",
+              "ai_secret_instructions": "Varen es un oponente formidable pero arrogante. Si Lyra los traicionó, aparece a su lado. Si los ayuda, aparece para distraer a guardias enemigos. La Reina revela: 'Siempre lo supe, Varen. Y lo protegí PORQUE lo amaba como hijo, no a pesar de ello.'",
+              "tension_level": "critical",
+              "victory_conditions": {
+                "defeat_varen": "Derrotar a Lord Varen"
+              },
+              "failure_conditions": {
+                "total_party_death": "Todos los jugadores caen",
+                "aldric_dies": "El príncipe Aldric muere"
+              }
+            }
+          ],
+          "decisions": [
+            {
+              "decision_code": "varen_fate",
+              "title": "El Destino de Lord Varen",
+              "description": "Lord Varen ha caído. Su vida está en vuestras manos.",
+              "options": [
+                {
+                  "id": "execute",
+                  "label": "Ejecutarlo",
+                  "description": "Justicia inmediata por sus crímenes",
+                  "karma_effect": -5,
+                  "consequence_flags": ["varen_dead", "swift_justice"]
+                },
+                {
+                  "id": "exile",
+                  "label": "Exiliarlo",
+                  "description": "Desterrarlo del reino para siempre",
+                  "karma_effect": 5,
+                  "consequence_flags": ["varen_exiled", "mercy_shown"]
+                },
+                {
+                  "id": "trial",
+                  "label": "Juicio público",
+                  "description": "Que el pueblo decida su destino",
+                  "karma_effect": 10,
+                  "consequence_flags": ["varen_trial", "justice_served"]
+                },
+                {
+                  "id": "escape",
+                  "label": "Dejarlo escapar",
+                  "description": "Permitir (accidental o deliberadamente) que huya",
+                  "karma_effect": -10,
+                  "consequence_flags": ["varen_escaped", "loose_end"]
+                }
+              ],
+              "affects_ending": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "act_number": 4,
+      "title": "El Nuevo Amanecer",
+      "description": "Las consecuencias de las acciones de los héroes dan forma al futuro de Valdoria.",
+      "objectives": [
+        "Ver las consecuencias de las decisiones",
+        "Recibir el reconocimiento merecido",
+        "Descubrir el epílogo"
+      ],
+      "estimated_sessions": 2,
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title": "Consecuencias",
+          "narrative_hook": "El polvo se asienta sobre Valdoria. Es hora de ver qué futuro han forjado los héroes.",
+          "key_npcs": ["aldric", "isadora"],
+          "scenes": [
+            {
+              "scene_order": 1,
+              "scene_type": "narrative",
+              "title": "Epílogo",
+              "opening_narration": "Semanas después de los eventos del castillo, Valdoria comienza a sanar. El destino del reino ha sido moldeado por vuestras acciones, para bien o para mal.",
+              "ai_context": "Escena de cierre que refleja las decisiones tomadas. El final varía según los flags acumulados.",
+              "ai_secret_instructions": "Determinar final según flags: FINAL A si exposure + varen_dead/trial + karma alto. FINAL B si negotiation + mercy. FINAL C si varen_escaped. FINAL D si path_betrayal o múltiples fallos.",
+              "tension_level": "low"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "npcs": [
+    {
+      "code": "varen",
+      "name": "Lord Varen",
+      "apparent_role": "ally",
+      "true_role": "traitor",
+      "description": "Consejero Real de Valdoria, un hombre de mediana edad con ojos calculadores y modales refinados.",
+      "appearance": "Alto y delgado, con cabello canoso en las sienes, viste siempre de negro y púrpura. Sus ojos grises parecen leer cada pensamiento.",
+      "personality": {
+        "cunning": 90,
+        "loyalty": 10,
+        "patience": 85,
+        "pride": 95,
+        "cruelty": 60,
+        "compassion": 15,
+        "courage": 70,
+        "greed": 80,
+        "honor": 5,
+        "wisdom": 75
+      },
+      "secrets": [
+        "Es el padre biológico del Príncipe Aldric",
+        "Asesinó al Rey anterior hace 20 años",
+        "Lidera la conspiración del Pacto Carmesí",
+        "Lyra es su hermana menor"
+      ],
+      "dialogue_style": "Formal, elegante, con dobles sentidos. Nunca dice nada directamente incriminatorio.",
+      "relationship_default": 50,
+      "betrayal_threshold": null,
+      "redemption_threshold": null,
+      "is_major": true
+    },
+    {
+      "code": "isadora",
+      "name": "Reina Isadora",
+      "apparent_role": "ally",
+      "true_role": "ally",
+      "description": "Reina de Valdoria, una mujer de dignidad serena que oculta un corazón roto.",
+      "appearance": "Cabello plateado recogido en elaborados peinados, ojos azul profundo que reflejan tanto sabiduría como tristeza.",
+      "personality": {
+        "cunning": 60,
+        "loyalty": 90,
+        "patience": 80,
+        "pride": 70,
+        "cruelty": 5,
+        "compassion": 85,
+        "courage": 75,
+        "greed": 10,
+        "honor": 90,
+        "wisdom": 85
+      },
+      "secrets": [
+        "Sabe que Aldric no es su hijo biológico",
+        "Sospecha de Varen pero no tiene pruebas",
+        "Amó genuinamente al Rey anterior"
+      ],
+      "dialogue_style": "Regia pero cálida, elige las palabras con cuidado, muestra fuerza incluso en el dolor.",
+      "relationship_default": 60,
+      "betrayal_threshold": null,
+      "redemption_threshold": null,
+      "is_major": true
+    },
+    {
+      "code": "lyra",
+      "name": "Lyra",
+      "apparent_role": "neutral",
+      "true_role": "secret_ally",
+      "description": "Tabernera de El Cáliz Roto, una mujer joven de mirada astuta y sonrisa cautelosa.",
+      "appearance": "Cabello negro como el ala de un cuervo, ojos verde oscuro, complexión ágil. Una cicatriz pequeña en la ceja izquierda.",
+      "personality": {
+        "cunning": 70,
+        "loyalty": 50,
+        "patience": 60,
+        "pride": 40,
+        "cruelty": 10,
+        "compassion": 75,
+        "courage": 65,
+        "greed": 20,
+        "honor": 60,
+        "wisdom": 55
+      },
+      "secrets": [
+        "Es hermana de Lord Varen",
+        "Ha sido espía y aliada del príncipe desde hace años",
+        "Conoce los planes del Pacto Carmesí",
+        "Lucha con su lealtad dividida"
+      ],
+      "dialogue_style": "Amable pero reservada, usa el humor para deflectar preguntas incómodas.",
+      "relationship_default": 50,
+      "betrayal_threshold": 30,
+      "redemption_threshold": 80,
+      "is_major": true
+    },
+    {
+      "code": "aldric",
+      "name": "Príncipe Aldric",
+      "apparent_role": "ally",
+      "true_role": "ally",
+      "description": "El príncipe heredero de Valdoria, un joven inteligente y valiente que descubrió una terrible verdad.",
+      "appearance": "Joven de unos veinticinco años, cabello castaño y ojos que recuerdan a los de Varen pero con más calidez.",
+      "personality": {
+        "cunning": 55,
+        "loyalty": 85,
+        "patience": 40,
+        "pride": 50,
+        "cruelty": 5,
+        "compassion": 80,
+        "courage": 85,
+        "greed": 10,
+        "honor": 90,
+        "wisdom": 60
+      },
+      "secrets": [
+        "Descubrió que Varen es su padre biológico",
+        "Tiene pruebas de la conspiración",
+        "No quiere el trono si significa sangre inocente"
+      ],
+      "dialogue_style": "Directo y apasionado, educado pero no pretencioso.",
+      "relationship_default": 60,
+      "betrayal_threshold": null,
+      "redemption_threshold": null,
+      "is_major": true
+    },
+    {
+      "code": "marcus",
+      "name": "Marcus el Mercader",
+      "apparent_role": "neutral",
+      "true_role": "neutral",
+      "description": "Un mercader caído en desgracia que debe dinero a gente peligrosa.",
+      "appearance": "Hombre de mediana edad con ropas que fueron finas, manos temblorosas, mirada furtiva.",
+      "personality": {
+        "cunning": 40,
+        "loyalty": 30,
+        "patience": 20,
+        "pride": 25,
+        "cruelty": 5,
+        "compassion": 45,
+        "courage": 20,
+        "greed": 60,
+        "honor": 35,
+        "wisdom": 30
+      },
+      "secrets": [
+        "Vio movimientos sospechosos la noche de la desaparición",
+        "Escuchó mencionar el Pacto Carmesí"
+      ],
+      "dialogue_style": "Nervioso, habla rápido, evade preguntas directas.",
+      "relationship_default": 40,
+      "betrayal_threshold": null,
+      "redemption_threshold": null,
+      "is_major": false
+    }
+  ],
+  "clues": [
+    {
+      "code": "clue_diary",
+      "title": "Diario del Príncipe",
+      "content": "Referencias a 'El Pacto Carmesí' y reuniones secretas de nobles.",
+      "related_twist": "pacto_carmesi",
+      "foreshadow_hint": "Mencionar que el príncipe era conocido por escribir constantemente.",
+      "is_required": true
+    },
+    {
+      "code": "clue_medallion",
+      "title": "Medallón de la Llama Negra",
+      "content": "Un medallón con el símbolo de la Orden de la Llama Negra, dejado como pista falsa.",
+      "related_twist": "red_herring_orden",
+      "foreshadow_hint": "Mencionar rumores sobre la Orden de la Llama Negra.",
+      "is_required": false
+    },
+    {
+      "code": "clue_lyra_letter",
+      "title": "Carta a 'L'",
+      "content": "Una carta inconclusa del príncipe a alguien llamado 'L', pidiendo ayuda.",
+      "related_twist": "lyra_identity",
+      "foreshadow_hint": "Lyra tiene un anillo similar al del príncipe.",
+      "is_required": true
+    },
+    {
+      "code": "clue_king_murder",
+      "title": "Evidencia del Regicidio",
+      "content": "Pruebas de que Lord Varen envenenó al Rey hace 20 años.",
+      "related_twist": "varen_regicide",
+      "foreshadow_hint": "Mencionar la muerte 'súbita' del Rey anterior.",
+      "is_required": false
+    },
+    {
+      "code": "clue_varen_seal",
+      "title": "Sello de Varen",
+      "content": "El sello personal de Varen aparece en documentos de la conspiración.",
+      "related_twist": "varen_leader",
+      "foreshadow_hint": "Notar el anillo de sello que Varen siempre lleva.",
+      "is_required": true
+    },
+    {
+      "code": "clue_aldric_parentage",
+      "title": "Verdadero Linaje de Aldric",
+      "content": "Documentos que prueban que Aldric es hijo de Varen, no del Rey.",
+      "related_twist": "aldric_parentage",
+      "foreshadow_hint": "Mencionar el parecido físico entre Varen y Aldric.",
+      "is_required": true
+    }
+  ],
+  "twists": [
+    {
+      "id": "pacto_carmesi",
+      "title": "El Pacto Carmesí",
+      "description": "Una conspiración de nobles para derrocar a la Reina.",
+      "revelation_text": "El Pacto Carmesí no es una leyenda. Es real, y sus tentáculos llegan hasta los escalones del trono.",
+      "required_clues": ["clue_diary"],
+      "min_clues_for_reveal": 1,
+      "required_act": 2,
+      "foreshadowing": [
+        {
+          "scene_type": "social",
+          "subtle_hint": "Un noble se pone nervioso cuando se menciona 'lealtad'."
+        }
+      ],
+      "related_npcs": ["varen"],
+      "priority": 7,
+      "affects_ending": true
+    },
+    {
+      "id": "aldric_escape",
+      "title": "La Huida del Príncipe",
+      "description": "El príncipe no fue secuestrado, huyó voluntariamente.",
+      "revelation_text": "El príncipe Aldric no fue víctima... fue el primero en descubrir la verdad.",
+      "required_clues": ["clue_lyra_letter"],
+      "min_clues_for_reveal": 1,
+      "required_act": 1,
+      "foreshadowing": [
+        {
+          "scene_type": "investigation",
+          "subtle_hint": "No hay signos de lucha en los aposentos del príncipe."
+        }
+      ],
+      "related_npcs": ["aldric"],
+      "priority": 8,
+      "affects_ending": false
+    },
+    {
+      "id": "varen_leader",
+      "title": "El Líder de las Sombras",
+      "description": "Lord Varen es el líder del Pacto Carmesí.",
+      "revelation_text": "Lord Varen. El consejero leal. El protector del reino. Todo una máscara para el arquitecto de su destrucción.",
+      "required_clues": ["clue_varen_seal", "clue_diary"],
+      "min_clues_for_reveal": 2,
+      "required_act": 2,
+      "foreshadowing": [
+        {
+          "scene_type": "social",
+          "subtle_hint": "Varen siempre parece saber más de lo que debería."
+        }
+      ],
+      "related_npcs": ["varen"],
+      "priority": 9,
+      "affects_ending": true
+    },
+    {
+      "id": "aldric_parentage",
+      "title": "El Verdadero Heredero",
+      "description": "Aldric es hijo biológico de Varen, no del Rey.",
+      "revelation_text": "La sangre del príncipe no lleva la del Rey... sino la de su asesino.",
+      "required_clues": ["clue_aldric_parentage"],
+      "min_clues_for_reveal": 1,
+      "required_act": 2,
+      "foreshadowing": [
+        {
+          "scene_type": "social",
+          "subtle_hint": "Aldric tiene los mismos ojos grises que Varen."
+        }
+      ],
+      "related_npcs": ["varen", "aldric", "isadora"],
+      "priority": 10,
+      "affects_ending": true
+    },
+    {
+      "id": "lyra_sister",
+      "title": "Lazos de Sangre",
+      "description": "Lyra es hermana de Lord Varen.",
+      "revelation_text": "Lyra baja la mirada. 'Varen... Lord Varen... es mi hermano. Y he estado luchando con esa verdad toda mi vida.'",
+      "required_clues": [],
+      "min_clues_for_reveal": 0,
+      "required_flags": ["met_lyra", "act_3"],
+      "required_act": 3,
+      "foreshadowing": [
+        {
+          "scene_type": "social",
+          "subtle_hint": "Lyra tiene un gesto familiar cuando piensa, igual que Varen."
+        }
+      ],
+      "related_npcs": ["lyra", "varen"],
+      "priority": 8,
+      "affects_ending": true
+    }
+  ],
+  "red_herrings": [
+    {
+      "id": "herring_orden",
+      "description": "El medallón de la Orden de la Llama Negra sugiere que son los responsables.",
+      "false_conclusion": "La Orden de la Llama Negra secuestró al príncipe.",
+      "real_truth": "El medallón fue plantado. La Orden existe pero no está involucrada en esto.",
+      "deploy_after_clue": "clue_medallion",
+      "revelation_trigger": "Descubrir que la Orden no opera en la región desde hace años."
+    }
+  ],
+  "endings": [
+    {
+      "code": "ending_a",
+      "title": "El Rey Justo",
+      "description": "Aldric asciende al trono con el apoyo del pueblo, inaugurando una era de reformas.",
+      "narration": "El Príncipe Aldric, ahora Rey Aldric I, es coronado ante un reino unido. Las reformas prometidas comienzan. Los conspiradores enfrentan justicia. Y los héroes que hicieron esto posible son recordados como los Guardianes de Valdoria.",
+      "requirements": {
+        "flags": ["path_exposure", "aldric_ally"],
+        "karma_min": 60,
+        "decisions": {
+          "varen_fate": ["execute", "trial"]
+        }
+      },
+      "is_good_ending": true,
+      "epilogue": "El reino prospera bajo el reinado de Aldric. La Reina Isadora se retira a una vida pacífica, visitada frecuentemente por su hijo adoptivo. Los héroes tienen un lugar de honor en la corte."
+    },
+    {
+      "code": "ending_b",
+      "title": "La Paz del Silencio",
+      "description": "La verdad se oculta parcialmente para evitar una guerra civil.",
+      "narration": "La transición es pacífica, pero las sombras del pasado nunca se disipan del todo. Aldric gobierna con sabiduría, pero siempre mirando por encima del hombro. Los héroes conocen secretos que podrían destruir el reino.",
+      "requirements": {
+        "flags": ["path_negotiation", "aldric_ally"],
+        "decisions": {
+          "varen_fate": ["exile"]
+        }
+      },
+      "is_good_ending": true,
+      "epilogue": "La paz reina en Valdoria, pero es una paz frágil. Los héroes se convierten en los guardianes silenciosos de verdades que nunca deben salir a la luz."
+    },
+    {
+      "code": "ending_c",
+      "title": "El Ciclo Continúa",
+      "description": "Varen escapa, jurando venganza.",
+      "narration": "La victoria sabe a cenizas. Varen ha huido, llevándose consigo recursos y seguidores. Aldric gobierna, pero una amenaza acecha en las sombras. La historia de Valdoria no ha terminado.",
+      "requirements": {
+        "flags": ["varen_escaped"]
+      },
+      "is_good_ending": false,
+      "epilogue": "Años después, rumores llegan de un ejército reuniéndose en el exilio. Varen no ha olvidado, y la siguiente tormenta será peor que la primera."
+    },
+    {
+      "code": "ending_d",
+      "title": "La Caída",
+      "description": "La conspiración tiene éxito parcial. Valdoria cae en la oscuridad.",
+      "narration": "Las sombras ganan. Aldric vive, pero como prisionero en su propio reino. Varen, desde las sombras, controla todo. Los héroes son cazados, fugitivos en una tierra que una vez prometieron salvar.",
+      "requirements": {
+        "flags": ["path_betrayal"]
+      },
+      "is_good_ending": false,
+      "epilogue": "La resistencia continúa en secreto. Los héroes, si sobrevivieron, buscan la manera de redimir sus errores. Pero esa es otra historia..."
+    }
+  ]
+}

@@ -83,11 +83,51 @@ class ApiService {
     return this.request(`/rooms/code/${code}`);
   }
 
-  async createRoom(name, theme, maxPlayers = 6) {
+  async createRoom(name, theme, campaignId = null, maxPlayers = 6) {
     return this.request('/rooms', {
       method: 'POST',
-      body: JSON.stringify({ name, theme, maxPlayers })
+      body: JSON.stringify({ name, theme, campaignId, maxPlayers })
     });
+  }
+
+  // Campaigns
+  async getCampaigns(themeId = null) {
+    const params = themeId ? `?theme_id=${themeId}` : '';
+    return this.request(`/campaigns${params}`);
+  }
+
+  async getCampaign(campaignId) {
+    return this.request(`/campaigns/${campaignId}`);
+  }
+
+  async getCampaignProgress(roomCode) {
+    return this.request(`/campaigns/progress/${roomCode}`);
+  }
+
+  async initializeCampaign(roomCode, campaignId) {
+    return this.request(`/campaigns/progress/${roomCode}/initialize`, {
+      method: 'POST',
+      body: JSON.stringify({ campaignId })
+    });
+  }
+
+  async getPendingDecision(roomCode) {
+    return this.request(`/campaigns/decisions/${roomCode}/pending`);
+  }
+
+  async makeDecision(roomCode, decisionCode, chosenOption) {
+    return this.request(`/campaigns/decisions/${roomCode}`, {
+      method: 'POST',
+      body: JSON.stringify({ decisionCode, chosenOption })
+    });
+  }
+
+  async getEndingProbabilities(roomCode) {
+    return this.request(`/campaigns/endings/${roomCode}`);
+  }
+
+  async getRoomNPCs(roomCode) {
+    return this.request(`/campaigns/npcs/${roomCode}`);
   }
 
   async joinRoom(code) {

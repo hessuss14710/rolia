@@ -8,7 +8,9 @@ const authRoutes = require('./routes/auth');
 const roomsRoutes = require('./routes/rooms');
 const charactersRoutes = require('./routes/characters');
 const gameRoutes = require('./routes/game');
+const campaignsRoutes = require('./routes/campaigns');
 const { authenticateToken, authenticateSocket } = require('./middleware/auth');
+const storyEngine = require('./services/storyEngine');
 
 const app = express();
 const server = http.createServer(app);
@@ -49,6 +51,7 @@ app.use('/auth', authRoutes);
 app.use('/rooms', authenticateToken, roomsRoutes);
 app.use('/characters', authenticateToken, charactersRoutes);
 app.use('/game', authenticateToken, gameRoutes);
+app.use('/campaigns', campaignsRoutes);
 
 // Socket.IO authentication middleware
 io.use(authenticateSocket);
@@ -188,6 +191,60 @@ io.on('connection', (socket) => {
   socket.on('ai-response', (data) => {
     if (socket.roomCode) {
       io.to(socket.roomCode).emit('ai-message', data);
+    }
+  });
+
+  // Story decision made
+  socket.on('story-decision', async (data) => {
+    if (!socket.roomCode) return;
+
+    try {
+      const { decisionCode, chosenOption } = data;
+
+      // Get room ID
+      const roomResult = await pool.query('SELECT id FROM rooms WHERE code = $1', [socket.roomCode]);
+      if (roomResult.rows.length === 0) return;
+
+      const roomId = roomResult.rows[0].id;
+
+      // Process decision via Story Engine
+      const result = await storyEngine.processDecision(roomId, decisionCode, chosenOption);
+
+      if (result) {
+        // Broadcast decision to room
+        io.to(socket.roomCode).emit('story-decision-made', {
+          userId: socket.user.id,
+          username: socket.user.username,
+          decisionCode,
+          chosenOption,
+          result,
+          timestamp: new Date().toISOString()
+        });
+
+        // If there's a narration hint, broadcast it
+        if (result.narration_hint) {
+          io.to(socket.roomCode).emit('story-narration-hint', {
+            hint: result.narration_hint
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Error processing story decision:', err);
+    }
+  });
+
+  // Story progress update request
+  socket.on('request-story-state', async () => {
+    if (!socket.roomCode) return;
+
+    try {
+      const roomResult = await pool.query('SELECT id FROM rooms WHERE code = $1', [socket.roomCode]);
+      if (roomResult.rows.length === 0) return;
+
+      const state = await storyEngine.getStoryState(roomResult.rows[0].id);
+      socket.emit('story-state', state);
+    } catch (err) {
+      console.error('Error getting story state:', err);
     }
   });
 

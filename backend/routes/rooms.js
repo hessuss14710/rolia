@@ -53,7 +53,7 @@ router.get('/', async (req, res) => {
 // Create room
 router.post('/', async (req, res) => {
   const pool = req.app.get('db');
-  const { name, theme, maxPlayers = 6 } = req.body;
+  const { name, theme, maxPlayers = 6, campaignId = null } = req.body;
 
   if (!name || !theme) {
     return res.status(400).json({ error: 'Nombre y tema son requeridos' });
@@ -74,12 +74,23 @@ router.post('/', async (req, res) => {
       return res.status(500).json({ error: 'No se pudo generar código de sala' });
     }
 
+    // Validate campaign if provided
+    if (campaignId) {
+      const campaignCheck = await pool.query(
+        'SELECT id, theme_id FROM campaigns WHERE id = $1',
+        [campaignId]
+      );
+      if (campaignCheck.rows.length === 0) {
+        return res.status(400).json({ error: 'Campaña no encontrada' });
+      }
+    }
+
     // Create room
     const result = await pool.query(
-      `INSERT INTO rooms (code, name, theme, owner_id, max_players)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, code, name, theme, status, max_players, created_at`,
-      [code, name, theme, req.user.id, Math.min(maxPlayers, 6)]
+      `INSERT INTO rooms (code, name, theme, owner_id, max_players, campaign_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, code, name, theme, status, max_players, campaign_id, created_at`,
+      [code, name, theme, req.user.id, Math.min(maxPlayers, 6), campaignId]
     );
 
     const room = result.rows[0];
@@ -89,6 +100,38 @@ router.post('/', async (req, res) => {
       'INSERT INTO room_participants (room_id, user_id) VALUES ($1, $2)',
       [room.id, req.user.id]
     );
+
+    // Initialize campaign progress if campaign selected
+    if (campaignId) {
+      // Get first scene
+      const firstSceneResult = await pool.query(
+        `SELECT s.id as scene_id, c.id as chapter_id, a.id as act_id
+         FROM story_acts a
+         JOIN story_chapters c ON c.act_id = a.id
+         JOIN story_scenes s ON s.chapter_id = c.id
+         WHERE a.campaign_id = $1
+         ORDER BY a.act_number, c.chapter_number, s.scene_order
+         LIMIT 1`,
+        [campaignId]
+      );
+
+      if (firstSceneResult.rows.length > 0) {
+        const firstScene = firstSceneResult.rows[0];
+        await pool.query(
+          `INSERT INTO room_campaign_progress
+           (room_id, campaign_id, current_act, current_chapter, current_scene)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [room.id, campaignId, firstScene.act_id, firstScene.chapter_id, firstScene.scene_id]
+        );
+      }
+
+      // Get campaign name for response
+      const campaignInfo = await pool.query(
+        'SELECT name FROM campaigns WHERE id = $1',
+        [campaignId]
+      );
+      room.campaign_name = campaignInfo.rows[0]?.name;
+    }
 
     res.status(201).json({ room });
   } catch (err) {
@@ -105,9 +148,11 @@ router.get('/code/:code', async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT r.*, u.username as owner_name,
+              c.name as campaign_name, c.synopsis as campaign_synopsis,
               (SELECT COUNT(*) FROM room_participants WHERE room_id = r.id) as player_count
        FROM rooms r
        JOIN users u ON r.owner_id = u.id
+       LEFT JOIN campaigns c ON r.campaign_id = c.id
        WHERE r.code = $1`,
       [code.toUpperCase()]
     );
@@ -136,6 +181,25 @@ router.get('/code/:code', async (req, res) => {
       [room.id]
     );
     room.participants = participants.rows;
+
+    // Get campaign progress if campaign exists
+    if (room.campaign_id) {
+      const progressResult = await pool.query(
+        `SELECT rcp.*,
+                sa.title as act_title, sa.act_number,
+                sc.title as chapter_title, sc.chapter_number,
+                ss.title as scene_title, ss.scene_order
+         FROM room_campaign_progress rcp
+         LEFT JOIN story_acts sa ON rcp.current_act = sa.id
+         LEFT JOIN story_chapters sc ON rcp.current_chapter = sc.id
+         LEFT JOIN story_scenes ss ON rcp.current_scene = ss.id
+         WHERE rcp.room_id = $1`,
+        [room.id]
+      );
+      if (progressResult.rows.length > 0) {
+        room.campaign_progress = progressResult.rows[0];
+      }
+    }
 
     res.json({ room });
   } catch (err) {
@@ -287,6 +351,9 @@ router.delete('/:code', async (req, res) => {
     await pool.query('DELETE FROM game_history WHERE room_id = $1', [roomId]);
     await pool.query('DELETE FROM characters WHERE room_id = $1', [roomId]);
     await pool.query('DELETE FROM room_participants WHERE room_id = $1', [roomId]);
+    await pool.query('DELETE FROM room_npc_relationships WHERE room_id = $1', [roomId]);
+    await pool.query('DELETE FROM room_campaign_progress WHERE room_id = $1', [roomId]);
+    await pool.query('DELETE FROM story_events WHERE room_id = $1', [roomId]);
     await pool.query('DELETE FROM rooms WHERE id = $1', [roomId]);
 
     // Notify via Socket.IO

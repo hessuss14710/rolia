@@ -132,7 +132,8 @@ router.post('/voice/:roomCode', upload.single('audio'), async (req, res) => {
       recentHistory,
       userMessage: transcription,
       character,
-      username: req.user.username
+      username: req.user.username,
+      roomId: room.id
     });
 
     console.log('AI Response:', aiResponse.text.substring(0, 100) + '...');
@@ -234,7 +235,8 @@ router.post('/message/:roomCode', async (req, res) => {
       recentHistory,
       userMessage: message,
       character,
-      username: req.user.username
+      username: req.user.username,
+      roomId: room.id
     });
 
     // Save AI response

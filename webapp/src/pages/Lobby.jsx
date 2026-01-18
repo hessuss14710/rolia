@@ -274,8 +274,28 @@ export default function Lobby() {
 function CreateRoomModal({ themes, onClose, onCreated }) {
   const [name, setName] = useState('');
   const [theme, setTheme] = useState('fantasy');
+  const [campaigns, setCampaigns] = useState([]);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
   const [error, setError] = useState('');
+
+  // Load campaigns when theme changes
+  useEffect(() => {
+    async function loadCampaigns() {
+      setLoadingCampaigns(true);
+      try {
+        const data = await api.getCampaigns();
+        setCampaigns(data.campaigns || []);
+      } catch (err) {
+        console.error('Error loading campaigns:', err);
+        setCampaigns([]);
+      } finally {
+        setLoadingCampaigns(false);
+      }
+    }
+    loadCampaigns();
+  }, []);
 
   async function handleCreate(e) {
     e.preventDefault();
@@ -283,7 +303,7 @@ function CreateRoomModal({ themes, onClose, onCreated }) {
     setLoading(true);
 
     try {
-      const data = await api.createRoom(name, theme);
+      const data = await api.createRoom(name, theme, selectedCampaign);
       onCreated(data.room);
     } catch (err) {
       setError(err.message);
@@ -338,6 +358,62 @@ function CreateRoomModal({ themes, onClose, onCreated }) {
               ))}
             </div>
           </div>
+
+          {/* Campaign Selection */}
+          {campaigns.length > 0 && (
+            <div>
+              <label className="block text-sm text-gray-400 mb-3 font-medium tracking-wide uppercase">
+                Historia epica (opcional)
+              </label>
+              {loadingCampaigns ? (
+                <div className="flex justify-center py-4">
+                  <div className="spinner" />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCampaign(null)}
+                    className={`w-full p-3 rounded-xl border text-left transition-all ${
+                      selectedCampaign === null
+                        ? 'border-neon-purple bg-neon-purple/10'
+                        : 'border-gray-700 hover:border-gray-600'
+                    }`}
+                  >
+                    <div className="font-medium">Partida libre</div>
+                    <div className="text-xs text-gray-500">Sin historia predefinida</div>
+                  </button>
+                  {campaigns.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setSelectedCampaign(c.id)}
+                      className={`w-full p-3 rounded-xl border text-left transition-all ${
+                        selectedCampaign === c.id
+                          ? 'border-neon-purple bg-neon-purple/10'
+                          : 'border-gray-700 hover:border-gray-600'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">📜</span>
+                        <div>
+                          <div className="font-medium">{c.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {c.estimated_sessions} sesiones · {c.difficulty}
+                          </div>
+                        </div>
+                      </div>
+                      {c.synopsis && (
+                        <div className="text-xs text-gray-400 mt-2 line-clamp-2">
+                          {c.synopsis}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {error && (
             <div className="text-red-400 text-sm text-center flex items-center justify-center gap-2">
