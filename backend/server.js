@@ -9,6 +9,7 @@ const roomsRoutes = require('./routes/rooms');
 const charactersRoutes = require('./routes/characters');
 const gameRoutes = require('./routes/game');
 const campaignsRoutes = require('./routes/campaigns');
+const itemsRoutes = require('./routes/items');
 const { authenticateToken, authenticateSocket } = require('./middleware/auth');
 const storyEngine = require('./services/storyEngine');
 
@@ -52,6 +53,7 @@ app.use('/rooms', authenticateToken, roomsRoutes);
 app.use('/characters', authenticateToken, charactersRoutes);
 app.use('/game', authenticateToken, gameRoutes);
 app.use('/campaigns', campaignsRoutes);
+app.use('/items', authenticateToken, itemsRoutes);
 
 // Socket.IO authentication middleware
 io.use(authenticateSocket);

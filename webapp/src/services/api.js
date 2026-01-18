@@ -247,6 +247,115 @@ class ApiService {
       body: JSON.stringify({ text })
     });
   }
+
+  // ============================================
+  // Items & Inventory
+  // ============================================
+
+  async getItems(filters = {}) {
+    const params = new URLSearchParams();
+    if (filters.type) params.append('type', filters.type);
+    if (filters.rarity) params.append('rarity', filters.rarity);
+    if (filters.search) params.append('search', filters.search);
+    const queryString = params.toString();
+    return this.request(`/items${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getItem(code) {
+    return this.request(`/items/item/${code}`);
+  }
+
+  async getCharacterInventory(characterId) {
+    return this.request(`/items/inventory/${characterId}`);
+  }
+
+  async addItemToInventory(characterId, itemCode, quantity = 1, source = 'system') {
+    return this.request(`/items/inventory/${characterId}/add`, {
+      method: 'POST',
+      body: JSON.stringify({ itemCode, quantity, source })
+    });
+  }
+
+  async removeItemFromInventory(characterId, itemCode, quantity = 1) {
+    return this.request(`/items/inventory/${characterId}/remove`, {
+      method: 'POST',
+      body: JSON.stringify({ itemCode, quantity })
+    });
+  }
+
+  // ============================================
+  // Equipment
+  // ============================================
+
+  async getCharacterEquipment(characterId) {
+    return this.request(`/items/equipment/${characterId}`);
+  }
+
+  async equipItem(characterId, itemId, slot) {
+    return this.request(`/items/equipment/${characterId}/equip`, {
+      method: 'POST',
+      body: JSON.stringify({ itemId, slot })
+    });
+  }
+
+  async unequipItem(characterId, slot) {
+    return this.request(`/items/equipment/${characterId}/unequip`, {
+      method: 'POST',
+      body: JSON.stringify({ slot })
+    });
+  }
+
+  // ============================================
+  // Shops
+  // ============================================
+
+  async getShops() {
+    return this.request('/items/shops');
+  }
+
+  async getShop(shopCode) {
+    return this.request(`/items/shops/${shopCode}`);
+  }
+
+  async buyItem(shopCode, characterId, itemId, quantity = 1) {
+    return this.request(`/items/shops/${shopCode}/buy`, {
+      method: 'POST',
+      body: JSON.stringify({ characterId, itemId, quantity })
+    });
+  }
+
+  async sellItem(shopCode, characterId, itemId, quantity = 1) {
+    return this.request(`/items/shops/${shopCode}/sell`, {
+      method: 'POST',
+      body: JSON.stringify({ characterId, itemId, quantity })
+    });
+  }
+
+  // ============================================
+  // Consumables
+  // ============================================
+
+  async useItem(characterId, itemId) {
+    return this.request(`/items/use/${characterId}`, {
+      method: 'POST',
+      body: JSON.stringify({ itemId })
+    });
+  }
+
+  // ============================================
+  // Gold
+  // ============================================
+
+  async getCharacterGold(characterId) {
+    return this.request(`/items/gold/${characterId}`);
+  }
+
+  async modifyCharacterGold(characterId, amount, source = 'system') {
+    return this.request(`/items/gold/${characterId}/add`, {
+      method: 'POST',
+      body: JSON.stringify({ amount, source })
+    });
+  }
 }
 
 export const api = new ApiService();

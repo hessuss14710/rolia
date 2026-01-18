@@ -666,3 +666,166 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ============================================
+   ITEM SYSTEM STYLES
+   ============================================ */
+
+/* Legendary item glow animation */
+@keyframes legendary-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(250, 204, 21, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(250, 204, 21, 0.6); }
+}
+
+.item-legendary {
+  animation: legendary-glow 2s ease-in-out infinite;
+}
+
+/* Item acquired animation */
+@keyframes item-acquired {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.item-acquired {
+  animation: item-acquired 0.5s ease-out;
+}
+
+/* Gold sparkle animation */
+@keyframes gold-sparkle {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+.gold-display {
+  animation: gold-sparkle 1.5s infinite;
+}
+
+/* Gold change notification */
+@keyframes gold-change {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-30px); opacity: 0; }
+}
+
+.gold-change-up {
+  animation: gold-change 1s ease-out forwards;
+  color: var(--neon-green);
+}
+
+.gold-change-down {
+  animation: gold-change 1s ease-out forwards;
+  color: #ef4444;
+}
+
+/* Item rarity borders */
+.item-border-common { border-color: rgba(156, 163, 175, 0.4); }
+.item-border-rare { border-color: rgba(59, 130, 246, 0.5); }
+.item-border-epic { border-color: rgba(168, 85, 247, 0.5); }
+.item-border-legendary { border-color: rgba(250, 204, 21, 0.6); }
+
+/* Item hover effects */
+.item-card:hover {
+  transform: translateY(-2px);
+}
+
+.item-card-rare:hover {
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+}
+
+.item-card-epic:hover {
+  box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2);
+}
+
+.item-card-legendary:hover {
+  box-shadow: 0 10px 30px rgba(250, 204, 21, 0.3);
+}
+
+/* Equipment slot styles */
+.equipment-slot-empty {
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.equipment-slot-filled {
+  border: 2px solid;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Shop tab active indicator */
+.shop-tab-active {
+  position: relative;
+}
+
+.shop-tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
+}
+
+/* Stat bonus pill */
+.stat-bonus-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--neon-green);
+}
+
+/* Item notification toast */
+@keyframes item-toast-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes item-toast-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.item-toast {
+  animation: item-toast-in 0.3s ease-out;
+}
+
+.item-toast-exit {
+  animation: item-toast-out 0.3s ease-in forwards;
+}
+
+/* Quantity selector */
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.2s;
+}
+
+.qty-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.qty-btn:active {
+  transform: scale(0.95);
+}

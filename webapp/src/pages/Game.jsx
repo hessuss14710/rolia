@@ -6,6 +6,8 @@ import socketService from '../services/socket';
 import PTTButton from '../components/PTTButton';
 import DiceRoller from '../components/DiceRoller';
 import CharacterSheet from '../components/CharacterSheet';
+import ShopModal from '../components/ShopModal';
+import { formatPrice } from '../utils/itemUtils';
 
 export default function Game() {
   const { code } = useParams();
@@ -22,8 +24,11 @@ export default function Game() {
   const [processing, setProcessing] = useState(false);
   const [showDice, setShowDice] = useState(false);
   const [showCharacter, setShowCharacter] = useState(false);
+  const [showShop, setShowShop] = useState(false);
   const [textInput, setTextInput] = useState('');
   const [speakingUsers, setSpeakingUsers] = useState(new Set());
+  const [notifications, setNotifications] = useState([]);
+  const [gold, setGold] = useState(100);
 
   useEffect(() => {
     loadGame();
@@ -47,6 +52,9 @@ export default function Game() {
 
       setRoom(roomData.room);
       setCharacter(charData.character);
+      if (charData.character) {
+        setGold(charData.character.gold || 100);
+      }
 
       const msgs = historyData.history.map(h => ({
         id: h.id,
@@ -115,12 +123,8 @@ export default function Game() {
       timestamp: data.timestamp
     }]);
 
-    if (data.characterUpdate && character) {
-      if (data.characterUpdate.hpChange) {
-        const newHp = Math.max(0, Math.min(character.max_hp, character.hp + data.characterUpdate.hpChange));
-        setCharacter(prev => ({ ...prev, hp: newHp }));
-        api.updateCharacter(character.id, { hp: newHp });
-      }
+    if (data.characterUpdate) {
+      processCharacterUpdate(data.characterUpdate);
     }
   }
 
@@ -175,6 +179,65 @@ export default function Game() {
     }]);
   }
 
+  function addNotification(type, message, icon) {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, type, message, icon }]);
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 4000);
+  }
+
+  async function processCharacterUpdate(characterUpdate) {
+    if (!characterUpdate || !character) return;
+
+    // Process HP changes
+    if (characterUpdate.hpChange) {
+      const newHp = Math.max(0, Math.min(character.max_hp, character.hp + characterUpdate.hpChange));
+      setCharacter(prev => ({ ...prev, hp: newHp }));
+      api.updateCharacter(character.id, { hp: newHp });
+
+      if (characterUpdate.hpChange > 0) {
+        addNotification('heal', `+${characterUpdate.hpChange} HP`, '❤️');
+      } else {
+        addNotification('damage', `${characterUpdate.hpChange} HP`, '💔');
+      }
+    }
+
+    // Process gold changes
+    if (characterUpdate.goldChange) {
+      try {
+        await api.modifyCharacterGold(character.id, characterUpdate.goldChange, 'ai_reward');
+        setGold(prev => prev + characterUpdate.goldChange);
+
+        if (characterUpdate.goldChange > 0) {
+          addNotification('gold', `+${characterUpdate.goldChange} oro`, '🪙');
+        } else {
+          addNotification('gold', `${characterUpdate.goldChange} oro`, '🪙');
+        }
+      } catch (err) {
+        console.error('Error updating gold:', err);
+      }
+    }
+
+    // Process item changes
+    if (characterUpdate.itemChanges && characterUpdate.itemChanges.length > 0) {
+      for (const itemChange of characterUpdate.itemChanges) {
+        try {
+          if (itemChange.action === 'add') {
+            await api.addItemToInventory(character.id, itemChange.code, 1, 'ai_reward');
+            addNotification('item', `Obtenido: ${itemChange.code}`, '📦');
+          } else if (itemChange.action === 'remove') {
+            await api.removeItemFromInventory(character.id, itemChange.code, 1);
+            addNotification('item', `Perdido: ${itemChange.code}`, '📦');
+          }
+        } catch (err) {
+          console.error('Error updating inventory:', err);
+        }
+      }
+    }
+  }
+
   function scrollToBottom() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }
@@ -203,12 +266,8 @@ export default function Game() {
       playAudio(data.audioBase64);
     }
 
-    if (data.characterUpdate && character) {
-      if (data.characterUpdate.hpChange) {
-        const newHp = Math.max(0, Math.min(character.max_hp, character.hp + data.characterUpdate.hpChange));
-        setCharacter(prev => ({ ...prev, hp: newHp }));
-        api.updateCharacter(character.id, { hp: newHp });
-      }
+    if (data.characterUpdate) {
+      processCharacterUpdate(data.characterUpdate);
     }
   }
 
@@ -332,6 +391,17 @@ export default function Game() {
           )}
         </div>
 
+        {/* Shop button */}
+        {character && (
+          <button
+            onClick={() => setShowShop(true)}
+            className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+            title="Tienda"
+          >
+            <span className="text-xl">🏪</span>
+          </button>
+        )}
+
         {/* Character button */}
         {character && (
           <button
@@ -352,6 +422,25 @@ export default function Game() {
           </button>
         )}
       </header>
+
+      {/* Notifications */}
+      {notifications.length > 0 && (
+        <div className="fixed top-20 right-4 z-50 space-y-2">
+          {notifications.map(notif => (
+            <div
+              key={notif.id}
+              className={`item-toast glass rounded-xl px-4 py-2 flex items-center gap-2 text-sm font-medium
+                ${notif.type === 'gold' ? 'text-yellow-400 border border-yellow-500/30' : ''}
+                ${notif.type === 'item' ? 'text-neon-purple border border-neon-purple/30' : ''}
+                ${notif.type === 'heal' ? 'text-neon-green border border-neon-green/30' : ''}
+                ${notif.type === 'damage' ? 'text-red-400 border border-red-500/30' : ''}`}
+            >
+              <span className="text-lg">{notif.icon}</span>
+              <span>{notif.message}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10">
@@ -427,6 +516,18 @@ export default function Game() {
             setCharacter(prev => ({ ...prev, ...updates }));
             api.updateCharacter(character.id, updates);
           }}
+        />
+      )}
+
+      {/* Shop Modal */}
+      {showShop && character && (
+        <ShopModal
+          shopCode="general_store"
+          characterId={character.id}
+          gold={gold}
+          onClose={() => setShowShop(false)}
+          onGoldChange={setGold}
+          onInventoryChange={() => {}}
         />
       )}
     </div>

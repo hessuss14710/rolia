@@ -15,8 +15,25 @@ function parseStoryMarkers(responseText) {
     npcReactions: {},
     cluesRevealed: [],
     decisionTriggered: null,
-    sceneTransition: null
+    sceneTransition: null,
+    goldChanges: [],
+    itemChanges: []
   };
+
+  // Extract gold changes: [GOLD: +100] or [GOLD: -50]
+  const goldMatches = responseText.matchAll(/\[GOLD:\s*([+-]\d+)\]/gi);
+  for (const match of goldMatches) {
+    markers.goldChanges.push(parseInt(match[1], 10));
+  }
+
+  // Extract item changes with item codes: [ITEM: +sword_basic] or [ITEM: -potion_health]
+  const itemCodeMatches = responseText.matchAll(/\[ITEM:\s*([+-])(\w+)\]/gi);
+  for (const match of itemCodeMatches) {
+    markers.itemChanges.push({
+      action: match[1] === '+' ? 'add' : 'remove',
+      code: match[2].trim()
+    });
+  }
 
   // Extract karma change: [KARMA: +/-N]
   const karmaMatch = responseText.match(/\[KARMA:\s*([+-]\d+)\]/i);
@@ -65,6 +82,7 @@ function cleanStoryMarkers(text) {
     .replace(/\[DECISION:.*?\]/gi, '')
     .replace(/\[SCENE:.*?\]/gi, '')
     .replace(/\[TENSION:.*?\]/gi, '')
+    .replace(/\[GOLD:.*?\]/gi, '')
     .trim();
 }
 
@@ -79,10 +97,13 @@ function buildStorySystemPrompt(basePrompt, storyContext) {
 - Mantén las respuestas concisas pero inmersivas (máximo 3-4 párrafos)
 - Si el jugador intenta una acción que requiere tirada de dados, indica qué dado tirar y la dificultad
 - Usa el formato [TIRADA: XdY+Z vs DC] cuando propongas tiradas
-- Si el resultado de una tirada afecta al personaje (daño, curación), indica [HP: -X] o [HP: +X]
-- Para añadir items al inventario usa [ITEM: +nombre]
-- Para quitar items usa [ITEM: -nombre]
-- Nunca reveles que eres una IA, mantén el rol de narrador misterioso`;
+- Si el resultado de una tirada afecta al personaje (daño, curacion), indica [HP: -X] o [HP: +X]
+- Para dar items del catalogo usa [ITEM: +codigo_item] (ej: [ITEM: +sword_basic], [ITEM: +potion_health])
+- Para quitar items usa [ITEM: -codigo_item]
+- Para dar oro usa [GOLD: +cantidad] (ej: [GOLD: +50])
+- Para quitar oro usa [GOLD: -cantidad] (ej: [GOLD: -25])
+- Items disponibles: sword_basic, sword_steel, sword_flame, dagger_basic, armor_leather, armor_chain, potion_health, potion_health_greater, gem_ruby, gem_sapphire, key_rusty, torch, rope, antidote
+- Nunca reveles que eres una IA, manten el rol de narrador misterioso`;
 
   // Add story system markers if we have story context
   if (storyContext) {
@@ -254,15 +275,16 @@ async function generateResponse({ systemPrompt, gameContext, recentHistory, user
       };
     }
 
-    // Extract item changes
-    const itemMatches = responseText.matchAll(/\[ITEM:\s*([+-])(.+?)\]/gi);
-    for (const match of itemMatches) {
+    // Extract item changes (now using item codes from catalog)
+    if (storyMarkers.itemChanges && storyMarkers.itemChanges.length > 0) {
       if (!result.characterUpdate) result.characterUpdate = {};
-      if (!result.characterUpdate.inventory) result.characterUpdate.inventory = [];
-      result.characterUpdate.inventory.push({
-        action: match[1] === '+' ? 'add' : 'remove',
-        name: match[2].trim()
-      });
+      result.characterUpdate.itemChanges = storyMarkers.itemChanges;
+    }
+
+    // Extract gold changes
+    if (storyMarkers.goldChanges && storyMarkers.goldChanges.length > 0) {
+      if (!result.characterUpdate) result.characterUpdate = {};
+      result.characterUpdate.goldChange = storyMarkers.goldChanges.reduce((a, b) => a + b, 0);
     }
 
     // Process story markers through Story Engine
@@ -293,7 +315,9 @@ function hasSignificantMarkers(markers) {
   return markers.karma !== null ||
          Object.keys(markers.npcReactions).length > 0 ||
          markers.cluesRevealed.length > 0 ||
-         markers.decisionTriggered !== null;
+         markers.decisionTriggered !== null ||
+         (markers.goldChanges && markers.goldChanges.length > 0) ||
+         (markers.itemChanges && markers.itemChanges.length > 0);
 }
 
 /**
